@@ -61,6 +61,7 @@ Function Test-ConnectionAsynchronous {
                 Result       = $Result
             }
             $Object.PSTypeNames.Insert(0,'Net.AsyncPingResult')
+            Write-Output -InputObject $Object
         }
     }
 }
