@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-16"?>
+<dellcommandupdate version="1.0" doctype="settings">
+<setting name="AutoReboot">False</setting>
+<setting name="FilterApplicable">ShowOnlyForSystemConfig</setting>
+<setting name="FilterUpdateType_Application">False</setting>
+<setting name="FilterUpdateType_Bios">True</setting>
+<setting name="FilterUpdateType_Driver">False</setting>
+<setting name="FilterUpdateType_Firmware">False</setting>
+<setting name="FilterUpdateType_Other">False</setting>
+<setting name="FilterUpdateType_Patch">False</setting>
+<setting name="FilterUpdateType_Utility">False</setting>
+</dellcommandupdate>
