@@ -2573,7 +2573,7 @@ Function Start-EXEAsUser {
 Function Get-PendingReboot {
     <#
     .SYNOPSIS
-        Get the pending reboot status on a local computer.
+        Get the pending reboot status on a local computer
     .DESCRIPTION
         Check WMI and the registry to determine if the system has a pending reboot operation from any of the following:
         a) Component Based Servicing
@@ -3103,6 +3103,9 @@ Function Convert-RegistryPath {
         Converts registry key hives to their full paths. Example: HKLM is converted to "Registry::HKEY_LOCAL_MACHINE"
     .PARAMETER Key
         Path to the registry key to convert (can be a registry hive or fully qualified path)
+    .PARAMETER SID
+        The security identifier (SID) for a user. Specifying this parameter will convert a HKEY_CURRENT_USER registry key to the HKEY_USERS\$SID format
+        Specify this parameter from the Invoke-HKCURegistrySettingsForAllUsers function to read/edit HKCU registry settings for all users on the system
     .EXAMPLE
         Convert-RegistryPath -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test'
     .EXAMPLE
@@ -3113,7 +3116,10 @@ Function Convert-RegistryPath {
     Param (
         [Parameter(Mandatory=$true)]
         [ValidateNotNullorEmpty()]
-        [string]$Key
+        [string]$Key,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
+        [string]$SID
     )
 
     Begin {}
@@ -3147,6 +3153,13 @@ Function Convert-RegistryPath {
             $Key = $Key -replace '^HKPD\\', 'HKEY_PERFORMANCE_DATA\'
         }
 
+        # If the SID variable is specified, then convert all HKEY_CURRENT_USER key's to HKEY_USERS\$SID
+        If ($PSBoundParameters.ContainsKey('SID')) {
+            If ($Key -match '^HKEY_CURRENT_USER\\') {
+                $Key = $Key -replace '^HKEY_CURRENT_USER\\', "HKEY_USERS\$SID\"
+            }
+        }
+
         # Append the PowerShell drive to the registry key path
         If ($Key -notmatch '^Registry::') { [string]$Key = "Registry::$Key" }
 
@@ -3176,6 +3189,9 @@ Function Set-RegistryKey {
         The value data
     .PARAMETER Type
         The type of registry value to create or set. Options: 'Binary','DWord','ExpandString','MultiString','None','QWord','String','Unknown'. Default: String
+    .PARAMETER SID
+        The security identifier (SID) for a user. Specifying this parameter will convert a HKEY_CURRENT_USER registry key to the HKEY_USERS\$SID format
+        Specify this parameter from the Invoke-HKCURegistrySettingsForAllUsers function to read/edit HKCU registry settings for all users on the system
     .PARAMETER ContinueOnError
         Continue if an exit code is returned by msiexec that is not recognized. Default is: $true
     .EXAMPLE
@@ -3199,6 +3215,9 @@ Function Set-RegistryKey {
         [Microsoft.Win32.RegistryValueKind]$Type = 'String',
         [Parameter(Mandatory=$false)]
         [ValidateNotNullorEmpty()]
+        [string]$SID,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
         [boolean]$ContinueOnError = $true
     )
 
@@ -3211,7 +3230,16 @@ Function Set-RegistryKey {
     Process {
         Try {
             # Convert registry key hive to its full path
-            $Key = Convert-RegistryPath -Key $Key
+            If ($PSBoundParameters.ContainsKey('SID')) {
+                [string]$Key = Convert-RegistryPath -Key $Key -SID $SID
+            }
+            Else {
+                [string]$Key = Convert-RegistryPath -Key $Key
+            }
+
+            # Replace forward slash character to allow forward slash in name of the registry key
+            $Key = $Key.Replace('/',"$([char]0x2215)")
+
             # Create registry key if it doesn't exist
             If (-not (Test-Path -LiteralPath $Key -ErrorAction 'Stop')) {
                 Try {
@@ -3271,6 +3299,9 @@ Function Remove-RegistryKey {
         Name of the registry value to delete
     .PARAMETER Recurse
         Delete registry key recursively
+    .PARAMETER SID
+        The security identifier (SID) for a user. Specifying this parameter will convert a HKEY_CURRENT_USER registry key to the HKEY_USERS\$SID format
+        Specify this parameter from the Invoke-HKCURegistrySettingsForAllUsers function to read/edit HKCU registry settings for all users on the system
     .PARAMETER ContinueOnError
         Continue if an exit code is returned by msiexec that is not recognized. Default is: $true
     .EXAMPLE
@@ -3291,6 +3322,9 @@ Function Remove-RegistryKey {
         [switch]$Recurse,
         [Parameter(Mandatory=$false)]
         [ValidateNotNullorEmpty()]
+        [string]$SID,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
         [boolean]$ContinueOnError = $true
     )
 
@@ -3303,7 +3337,12 @@ Function Remove-RegistryKey {
     Process {
         Try {
             # Convert registry key hive to its full path
-            $Key = Convert-RegistryPath -Key $Key
+            If ($PSBoundParameters.ContainsKey('SID')) {
+                [string]$Key = Convert-RegistryPath -Key $Key -SID $SID
+            }
+            Else {
+                [string]$Key = Convert-RegistryPath -Key $Key
+            }
             If (-not ($Name)) {
                 If (Test-Path -LiteralPath $Key -ErrorAction 'Stop') {
                     If ($Recurse) {
@@ -3349,6 +3388,122 @@ Function Remove-RegistryKey {
                 Write-Warning -Message "Failed to delete registry value [$Key] [$Name]"
                 If (-not $ContinueOnError) {
                     Throw "Failed to delete registry value [$Key] [$Name]: $($_.Exception.Message)"
+                }
+            }
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
+Function Invoke-HKCURegistrySettingsForAllUsers {
+    <#
+    .SYNOPSIS
+        Set current user registry settings for all current users and any new users in the future.
+    .DESCRIPTION
+        Set HKCU registry settings for all current and future users by loading their NTUSER.dat registry hive file, and making the modifications
+        This function will modify HKCU settings for all users even when executed under the SYSTEM account
+        To ensure new users in the future get the registry edits, the Default User registry hive used to provision the registry for new users is modified
+        This function can be used as an alternative to using ActiveSetup for registry settings
+        The advantage of using this function over ActiveSetup is that a user does not have to log off and log back on before the changes take effect
+    .PARAMETER RegistrySettings
+        Script block which contains HKCU registry settings which should be modified for all users on the system. Must specify the -SID parameter for all HKCU settings
+    .PARAMETER UserProfiles
+        Specify the user profiles to modify HKCU registry settings for. Default is all user profiles except for system profiles
+    .EXAMPLE
+        [scriptblock]$HKCURegistrySettings = {
+        Set-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestName'    -Value 'TestValue'    -Type String -SID $UserProfile.SID
+            Set-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestNameTwo' -Value 'TestValueTwo' -Type String -SID $UserProfile.SID
+        }
+        Invoke-HKCURegistrySettingsForAllUsers -RegistrySettings $HKCURegistrySettings
+    .EXAMPLE
+        [scriptblock]$HKCURegistrySettings = {
+            Remove-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestName'    -SID $UserProfile.SID
+            Remove-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestNameTwo' -SID $UserProfile.SID
+        }
+        Invoke-HKCURegistrySettingsForAllUsers -RegistrySettings $HKCURegistrySettings
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [scriptblock]$RegistrySettings,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
+        [psobject[]]$UserProfiles = (Get-UserProfiles)
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+    }
+    Process {
+        ForEach ($UserProfile in $UserProfiles) {
+            Try {
+                # Set the path to the user's registry hive when it is loaded
+                [string]$UserRegistryPath = "Registry::HKEY_USERS\$($UserProfile.SID)"
+
+                # Set the path to the user's registry hive file
+                [string]$UserRegistryHiveFile = Join-Path -Path $UserProfile.ProfilePath -ChildPath 'NTUSER.DAT'
+
+                # Load the User profile registry hive if it is not already loaded because the User is logged in
+                [boolean]$ManuallyLoadedRegHive = $false
+                If (-not (Test-Path -LiteralPath $UserRegistryPath)) {
+                    # Load the User registry hive if the registry hive file exists
+                    If (Test-Path -LiteralPath $UserRegistryHiveFile -PathType 'Leaf') {
+                        Write-Verbose -Message "Load the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
+                        [string]$HiveLoadResult = & reg.exe load "`"HKEY_USERS\$($UserProfile.SID)`"" "`"$UserRegistryHiveFile`""
+
+                        If ($global:LastExitCode -ne 0) {
+                            Throw "Failed to load the registry hive for User [$($UserProfile.NTAccount)] with SID [$($UserProfile.SID)]. Failure message [$HiveLoadResult]. Continue..."
+                        }
+
+                        [boolean]$ManuallyLoadedRegHive = $true
+                    }
+                    Else {
+                        Throw "Failed to find the registry hive file [$UserRegistryHiveFile] for User [$($UserProfile.NTAccount)] with SID [$($UserProfile.SID)]. Continue..."
+                    }
+                }
+                Else {
+                    Write-Verbose -Message "The User [$($UserProfile.NTAccount)] registry hive is already loaded in path [HKEY_USERS\$($UserProfile.SID)]"
+                }
+
+                # Execute ScriptBlock which contains code to manipulate HKCU registry.
+                # Make sure read/write calls to the HKCU registry hive specify the -SID parameter (-SID $UserProfile.SID) or settings will not be changed for all users.
+                Write-Verbose -Message 'Execute ScriptBlock to modify HKCU registry settings for all users'
+                & $RegistrySettings
+            }
+            Catch {
+                Write-Warning -Message "Failed to modify the registry hive for User [$($UserProfile.NTAccount)] with SID [$($UserProfile.SID)]"
+            }
+            Finally {
+                If ($ManuallyLoadedRegHive) {
+                    Try {
+                        Write-Verbose -Message "Unload the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
+                        [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`""
+
+                        If ($global:LastExitCode -ne 0) {
+                            Write-Warning -Message "REG.exe failed to unload the registry hive and exited with exit code [$($global:LastExitCode)]. Performing manual garbage collection to ensure successful unloading of registry hive"
+                            [GC]::Collect()
+                            [GC]::WaitForPendingFinalizers()
+                            Start-Sleep -Seconds 5
+
+                            Write-Verbose -Message "Unload the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
+                            [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`""
+                            If ($global:LastExitCode -ne 0) {
+                                Throw "reg.exe failed with exit code [$($global:LastExitCode)] and result [$HiveLoadResult]"
+                            }
+                        }
+                    }
+                    Catch {
+                        Write-Warning -Message "Failed to unload the registry hive for User [$($UserProfile.NTAccount)] with SID [$($UserProfile.SID)]"
+                    }
                 }
             }
         }
