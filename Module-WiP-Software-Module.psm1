@@ -207,7 +207,7 @@ Function Start-MSI {
         [Parameter(Mandatory=$false)]
         [ValidateSet('Install','Uninstall','Patch','Repair')]
         [string]$Action = 'Install',
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,Position=0)]
         [ValidateScript({ ($_ -match $MSIProductCodeRegExPattern) -or ('.msi','.msp' -contains [IO.Path]::GetExtension($_)) })]
         [Alias('ProductCode')]
         [string]$Path,
@@ -3402,7 +3402,7 @@ Function Remove-RegistryKey {
 Function Invoke-HKCURegistrySettingsForAllUsers {
     <#
     .SYNOPSIS
-        Set current user registry settings for all current users and any new users in the future.
+        Set current user registry settings for all current users and any new users in the future
     .DESCRIPTION
         Set HKCU registry settings for all current and future users by loading their NTUSER.dat registry hive file, and making the modifications
         This function will modify HKCU settings for all users even when executed under the SYSTEM account
@@ -3415,7 +3415,7 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
         Specify the user profiles to modify HKCU registry settings for. Default is all user profiles except for system profiles
     .EXAMPLE
         [scriptblock]$HKCURegistrySettings = {
-        Set-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestName'    -Value 'TestValue'    -Type String -SID $UserProfile.SID
+            Set-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestName'    -Value 'TestValue'    -Type String -SID $UserProfile.SID
             Set-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestNameTwo' -Value 'TestValueTwo' -Type String -SID $UserProfile.SID
         }
         Invoke-HKCURegistrySettingsForAllUsers -RegistrySettings $HKCURegistrySettings
