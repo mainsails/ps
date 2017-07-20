@@ -2938,9 +2938,7 @@ Function Block-AppExecution {
         If (-not (Test-Path -LiteralPath $AppBlockScript -PathType 'Container')) {
             New-Item -Path $AppBlockScript -ItemType 'Directory' -Force -ErrorAction 'Stop' | Out-Null
         }
-        # Write unblock script to machine (rework)
-        #$UnBlockScript = (Get-Command -CommandType Function Unblock-AppExecution).Definition
-        #Out-File -InputObject $UnBlockScript -FilePath "$AppBlockScript\Unblock-AppExecutionScript.ps1" -Force -Encoding 'default' -ErrorAction 'SilentlyContinue'
+        # Write unblock script to machine
         $GetSchTaskScript = 'Function Get-ScheduledTasks' + '{' + (Get-Command -CommandType Function Get-ScheduledTasks).Definition + '}'
         $UnBlockScript    = 'Function Unblock-AppExecution' + '{' + (Get-Command -CommandType Function Unblock-AppExecution).Definition + '}' + 'Unblock-AppExecution'
         Out-File -InputObject $GetSchTaskScript,$UnBlockScript -FilePath "$AppBlockScript\Unblock-AppExecutionScript.ps1" -Force -Encoding 'default' -ErrorAction 'SilentlyContinue'
@@ -3474,8 +3472,8 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
                     Write-Verbose -Message "The User [$($UserProfile.NTAccount)] registry hive is already loaded in path [HKEY_USERS\$($UserProfile.SID)]"
                 }
 
-                # Execute ScriptBlock which contains code to manipulate HKCU registry.
-                # Make sure read/write calls to the HKCU registry hive specify the -SID parameter (-SID $UserProfile.SID) or settings will not be changed for all users.
+                # Execute ScriptBlock which contains code to manipulate HKCU registry
+                # Make sure read/write calls to the HKCU registry hive specify the -SID parameter (-SID $UserProfile.SID) or settings will not be changed for all users
                 Write-Verbose -Message 'Execute ScriptBlock to modify HKCU registry settings for all users'
                 & $RegistrySettings
             }
