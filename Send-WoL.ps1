@@ -10,6 +10,12 @@ Function Send-WoL {
         The Broadcast address of the machine to wake up
     .PARAMETER Port
         The Port that the Wake-on-LAN packet will be sent to
+    .EXAMPLE
+        Send-WOL -MACAddress 4C-E6-DC-5C-49-E4 -Port 7
+        Define an alternative UDP Port
+    .EXAMPLE
+        Send-WOL -MACAddress 88:1C:84:36:81:A1 -Broadcast 192.168.2.255
+        Define a specific Broadcast Address
     #>
 
     Param (
