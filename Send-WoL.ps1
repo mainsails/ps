@@ -27,7 +27,7 @@ Function Send-WoL {
             $Broadcast = [System.Net.IPAddress]::Parse($Broadcast)
         }
         Else {
-            $Broadcast = ([System.Net.IPAddress]::Broadcast)
+            $Broadcast = [System.Net.IPAddress]::Broadcast
         }
 
         # Create UDP client instance
@@ -37,11 +37,11 @@ Function Send-WoL {
         $IPEndPoint = New-Object Net.IPEndPoint $Broadcast, $Port
 
         # Construct physical address for the MAC address of the machine (string to byte array)
-        $MACAddress=(($MACAddress.Replace(":","")).Replace("-","")).Replace(".","")
-        $MAC = [Net.NetworkInformation.PhysicalAddress]::Parse($MACAddress.ToUpper())
+        $MACAddress = (($MACAddress.Replace(":","")).Replace("-","")).Replace(".","")
+        $MAC        = [Net.NetworkInformation.PhysicalAddress]::Parse($MACAddress.ToUpper())
 
         # Construct the Magic Packet frame
-        $Packet =  [Byte[]](,0xFF*6)+($MAC.GetAddressBytes()*16)
+        $Packet = [Byte[]](,0xFF*6)+($MAC.GetAddressBytes()*16)
 
         # Broadcast UDP packets to the IP endpoint of the machine
         $UdpClient.Send($Packet, $Packet.Length, $IPEndPoint) | Out-Null
