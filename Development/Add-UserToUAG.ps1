@@ -7,7 +7,7 @@ Function Add-UserToUAG {
     .Parameter Username
         List of usernames to add to the UAG Group
     .Example
-        Add-UserToUAG -UserName "ShawS", "WinterM", "AliY"
+        Add-UserToUAG -UserName "UserName1", "UserName2", "UserName3"
     .Example
         Get-Clipboard | Add-UserToUAG
     #>
@@ -20,7 +20,7 @@ Function Add-UserToUAG {
 
     Begin {
         ## Set Group
-        $Group = 'UAG - Portal Pilot Users'
+        $Group = 'UAG Group'
         $Group = Get-ADGroup $Group
         # Create ArrayList for Users
         $UserList = New-Object -TypeName System.Collections.ArrayList

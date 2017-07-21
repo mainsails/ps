@@ -1,3 +1,5 @@
+# Windows 7
+
 Function Set-PinnedApplication {
     <#
     .SYNOPSIS
@@ -90,9 +92,3 @@ Set-PinnedApplication -Action PinToStartMenu -FilePath "C:\Program Files (x86)\M
 Set-PinnedApplication -Action PinToStartMenu -FilePath "C:\Program Files (x86)\Microsoft Office\Office14\POWERPNT.EXE"
 Set-PinnedApplication -Action PinToStartMenu -FilePath "C:\Program Files (x86)\Microsoft Office\Office14\ONENOTE.EXE"
 Set-PinnedApplication -Action PinToStartMenu -FilePath "C:\Program Files (x86)\Microsoft Office\Office14\MSPUB.EXE"
-
-
-
-
-
-

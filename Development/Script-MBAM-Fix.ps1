@@ -132,10 +132,10 @@ $BitlockerStatus = New-Object -TypeName PSObject -Property $Properties
 If (($BitlockerStatus.MBAMVersion) -lt '2.5.0252.0') {
     $Computer          = $env:COMPUTERNAME
     $MBAMFolder        = 'C:\Appstore\MBAM'
-    $MBAM25x86         = '\\barsoftware\desktopcentral$\Microsoft\MBAMFIx\x86\MBAMClient.msi'
-    $MBAM25x64         = '\\barsoftware\desktopcentral$\Microsoft\MBAMFIx\x64\MBAMClient.msi'
-    $MBAMkbx86         = '\\barsoftware\desktopcentral$\Microsoft\MBAMFIx\x86\MBAM2.5-Client-KB2975636.exe'
-    $MBAMkbx64         = '\\barsoftware\desktopcentral$\Microsoft\MBAMFIx\x64\MBAM2.5-Client-KB2975636.exe'
+    $MBAM25x86         = '\\softwareshare\x86\MBAMClient.msi'
+    $MBAM25x64         = '\\softwareshare\x64\MBAMClient.msi'
+    $MBAMkbx86         = '\\softwareshare\x86\MBAM2.5-Client-KB2975636.exe'
+    $MBAMkbx64         = '\\softwareshare\x64\MBAM2.5-Client-KB2975636.exe'
     $MBAMClientEXE     = "$MBAMFolder\MBAMClient.msi"
     $MBAMClientArgs    = '/qn /norestart'
     $MBAMUpdateEXE     = "$MBAMFolder\MBAM2.5-Client-KB2975636.exe"

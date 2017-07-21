@@ -10,10 +10,10 @@ Function Enable-PowershellRemoting {
     .Example
        Enable-PowershellRemoting -ComputerName "RWX41999"
     .Example
-       $ListOfComputers = "RWX41551","RWX51122","RWX41999"
+       $ListOfComputers = "Computer1","Computer2","Computer3"
        Enable-PowershellRemoting $ListOfComputers
     .Example
-       "RWX51122","RWX41999" | Enable-PowershellRemoting
+       "Computer1","Computer2" | Enable-PowershellRemoting
     #>
 
     [CmdLetBinding()]

@@ -1,4 +1,4 @@
-$Reg       = 'HKLM:\Software\BHFT'
+$Reg       = 'HKLM:\Software\Image'
 $OSVersion = (Get-WmiObject -Class Win32_OperatingSystem).Caption
 $OSBuild   = Get-Date -Format 'yyyyMMdd'
 

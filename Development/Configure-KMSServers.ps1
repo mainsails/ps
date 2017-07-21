@@ -1,7 +1,7 @@
 ﻿#Requires -Version 5.1
 
 # Legitimate KMS Server
-$KMSServer = 'azusoft'
+$KMSServer = 'KMSServer'
 
 # Check / Activate ScriptBlock
 $ScriptBlock = {
@@ -33,6 +33,7 @@ $ScriptBlock = {
 Try {
     # Validate KMS Server
     $KMSServer = [System.Net.Dns]::GetHostEntry($KMSServer).Hostname
+
     # Get Domain
     $KMSDomain = $KMSServer.Substring($KMSServer.IndexOf('.') + 1)
 

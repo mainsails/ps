@@ -321,7 +321,7 @@ $Health += $Check
 
 
 ##### Export Status to Network ####
-#$ExportPath = "\\barsoftware\desktopcentral$\WorkstationHealth\WorkstationHealth.csv"
+#$ExportPath = "\\networkshare\WorkstationHealth.csv"
 #
 #While ($true) {
 #    Try {

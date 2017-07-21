@@ -7,7 +7,7 @@
 $VMCaptureClientRAM  = 4GB
 $VMCaptureClientDisk = 50GB
 # OS Capture Server Details
-$OSCaptureServer = 'BARMDT'
+$OSCaptureServer = 'MDT'
 $OSCaptureDS     = 'MDT Build Lab'
 
 

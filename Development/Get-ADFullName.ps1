@@ -1,5 +1,4 @@
 Function Get-ADFullName {
-
     <#
     .Synopsis
         Gets one or more Active Directory users
