@@ -3514,6 +3514,302 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
 }
 
 
+Function New-Folder {
+    <#
+    .SYNOPSIS
+        Create a new folder
+    .DESCRIPTION
+        Create a new folder if it does not exist
+    .PARAMETER Path
+        Path to the new folder to create
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .EXAMPLE
+        New-Folder -Path 'C:\Test'
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [string]$Path,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [boolean]$ContinueOnError = $true
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+    }
+    Process {
+        Try {
+            If (-not (Test-Path -LiteralPath $Path -PathType 'Container')) {
+                Write-Verbose -Message "Create folder [$Path]"
+                $null = New-Item -Path $Path -ItemType 'Directory' -ErrorAction 'Stop'
+            }
+            Else {
+                Write-Verbose -Message "Folder [$Path] already exists"
+            }
+        }
+        Catch {
+            Write-Warning -Message "Failed to create folder [$Path]"
+            If (-not $ContinueOnError) {
+                Throw "Failed to create folder [$Path]: $($_.Exception.Message)"
+            }
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
+Function Remove-Folder {
+    <#
+    .SYNOPSIS
+        Remove folder and files if they exist
+    .DESCRIPTION
+        Remove folder and all files recursively in a given path
+    .PARAMETER Path
+        Path to the folder to remove
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .EXAMPLE
+        Remove-Folder -Path 'C:\Test'
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [string]$Path,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [boolean]$ContinueOnError = $true
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+    }
+    Process {
+        If (Test-Path -LiteralPath $Path -PathType 'Container') {
+            Try {
+                Remove-Item -LiteralPath $Path -Force -Recurse -ErrorAction 'Stop'
+            }
+            Catch {
+                Write-Warning -Message "Failed to delete folder(s) and file(s) recursively from path [$Path]"
+                If (-not $ContinueOnError) {
+                    Throw "Failed to delete folder(s) and file(s) recursively from path [$Path]: $($_.Exception.Message)"
+                }
+            }
+        }
+        Else {
+            Write-Verbose -Message "Folder [$Path] does not exist"
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
+Function Copy-File {
+    <#
+    .SYNOPSIS
+        Copy a file or group of files to a destination path
+    .DESCRIPTION
+        Copy a file or group of files to a destination path
+    .PARAMETER Path
+        Path of the file to copy
+    .PARAMETER Destination
+        Destination Path of the file to copy
+    .PARAMETER Recurse
+        Copy files in subdirectories
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .EXAMPLE
+        Copy-File -Path 'C:\Test\File01.txt' -Destination 'C:\Test2\CopyOfFile01.txt'
+    .EXAMPLE
+        Copy-File -Path 'C:\Test\File01.txt' -Destination 'C:\Test2'
+    .EXAMPLE
+        Copy-File -Path 'C:\Test\*' -Destination 'C:\Test2' -Recurse
+        Copy all files and folders to a destination folder
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [string]$Path,
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [string]$Destination,
+        [Parameter(Mandatory=$false)]
+        [switch]$Recurse = $false,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [boolean]$ContinueOnError = $true
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+    }
+    Process {
+        Try {
+            If ((-not ([IO.Path]::HasExtension($Destination))) -and (-not (Test-Path -LiteralPath $Destination -PathType 'Container'))) {
+                Write-Verbose -Message "Creating destination folder [$Destination]"
+                $null = New-Item -Path $Destination -Type 'Directory' -Force -ErrorAction 'Stop'
+            }
+            If (([IO.Path]::HasExtension($Destination)) -and (-not (Test-Path -LiteralPath (Split-Path -Parent $Destination)))) {
+                Write-Verbose -Message "Creating destination folder [$(Split-Path -Parent $Destination)]"
+                $null = New-Item -Path (Split-Path -Parent $Destination) -Type 'Directory' -Force -ErrorAction 'Stop'
+            }
+            If ($Recurse) {
+                Write-Verbose -Message "Copy file(s) recursively from path [$Path] to destination [$Destination]"
+                $null = Copy-Item -Path $Path -Destination $Destination -Force -Recurse -ErrorAction 'Stop'
+            }
+            Else {
+                Write-Verbose -Message "Copy file from path [$Path] to destination [$Destination]"
+                $null = Copy-Item -Path $Path -Destination $Destination -Force -ErrorAction 'Stop'
+            }
+        }
+        Catch {
+            Write-Warning -Message "Failed to copy file(s) from path [$Path] to destination [$Destination]"
+            If (-not $ContinueOnError) {
+                Throw "Failed to copy file(s) from path [$Path] to destination [$Destination]: $($_.Exception.Message)"
+            }
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
+Function Remove-File {
+    <#
+    .SYNOPSIS
+        Removes one or more items from a given path on the filesystem
+    .DESCRIPTION
+        Removes one or more items from a given path on the filesystem
+    .PARAMETER Path
+        Specifies the path on the filesystem to be resolved. The value of Path will accept wildcards. Will accept an array of values
+    .PARAMETER LiteralPath
+        Specifies the path on the filesystem to be resolved. The value of LiteralPath is used exactly as it is typed; no characters are interpreted as wildcards. Will accept an array of values
+    .PARAMETER Recurse
+        Deletes the files in the specified location(s) and in all child items of the location(s)
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .EXAMPLE
+        Remove-File -Path 'C:\Test2\File01.txt'
+    .EXAMPLE
+        Remove-File -LiteralPath 'C:\Test2' -Recurse
+        Remove the folder and all contents
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true,ParameterSetName='Path')]
+        [ValidateNotNullorEmpty()]
+        [string[]]$Path,
+        [Parameter(Mandatory=$true,ParameterSetName='LiteralPath')]
+        [ValidateNotNullorEmpty()]
+        [string[]]$LiteralPath,
+        [Parameter(Mandatory=$false)]
+        [switch]$Recurse = $false,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullOrEmpty()]
+        [boolean]$ContinueOnError = $true
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+    }
+    Process {
+        # Build hashtable of parameters/value pairs to be passed to Remove-Item cmdlet
+        [hashtable]$RemoveFileSplat =  @{ 'Recurse' = $Recurse
+                                          'Force' = $true
+                                          'ErrorVariable' = '+ErrorRemoveItem'
+                                        }
+        If ($ContinueOnError) {
+            $RemoveFileSplat.Add('ErrorAction','SilentlyContinue')
+        }
+        Else {
+            $RemoveFileSplat.Add('ErrorAction','Stop')
+        }
+
+        # Resolve the specified path, if the path does not exist, display a warning instead of an error
+        If ($PSCmdlet.ParameterSetName -eq 'Path') {
+            [string[]]$SpecifiedPath = $Path }
+        Else {
+            [string[]]$SpecifiedPath = $LiteralPath
+        }
+        ForEach ($Item in $SpecifiedPath) {
+            Try {
+                If ($PSCmdlet.ParameterSetName -eq 'Path') {
+                    [string[]]$ResolvedPath += Resolve-Path -Path $Item -ErrorAction 'Stop' | Where-Object { $_.Path } | Select-Object -ExpandProperty 'Path' -ErrorAction 'Stop'
+                }
+                Else {
+                    [string[]]$ResolvedPath += Resolve-Path -LiteralPath $Item -ErrorAction 'Stop' | Where-Object { $_.Path } | Select-Object -ExpandProperty 'Path' -ErrorAction 'Stop'
+                }
+            }
+            Catch [System.Management.Automation.ItemNotFoundException] {
+                Write-Warning -Message "Unable to resolve file(s) for deletion from path [$Item] because the path does not exist"
+            }
+            Catch {
+                Write-Warning -Message "Failed to resolve file(s) for deletion from path [$Item]"
+                If (-not $ContinueOnError) {
+                    Throw "Failed to resolve file(s) for deletion from path [$Item]: $($_.Exception.Message)"
+                }
+            }
+        }
+
+        # Delete specified path if it was successfully resolved
+        If ($ResolvedPath) {
+            ForEach ($Item in $ResolvedPath) {
+                Try {
+                    If (($Recurse) -and (Test-Path -LiteralPath $Item -PathType 'Container')) {
+                        Write-Verbose -Message "Delete file(s) recursively from path [$Item]"
+                    }
+                    Else {
+                        Write-Verbose -Message "Delete file from path [$Item]"
+                    }
+                    $null = Remove-Item @RemoveFileSplat -LiteralPath $Item
+                }
+                Catch {
+                    Write-Warning -Message "Failed to delete file(s) from path [$Item]"
+                    If (-not $ContinueOnError) {
+                        Throw "Failed to delete file(s) from path [$Item]: $($_.Exception.Message)"
+                    }
+                }
+            }
+        }
+        If ($ErrorRemoveItem) {
+            $ErrorRemoveItem | Write-Warning
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
 Function Update-GroupPolicy {
     <#
     .SYNOPSIS
