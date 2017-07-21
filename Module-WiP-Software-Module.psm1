@@ -3348,13 +3348,14 @@ Function Remove-RegistryKey {
                         $null = Remove-Item -LiteralPath $Key -Force -Recurse -ErrorAction 'Stop'
                     }
                     Else {
-                        # Use Get-ChildItem to workaround non-existant subkey quirk of Remove-Item
+                        # Use Get-ChildItem to workaround "non-existant subkey" quirk of Remove-Item
                         If ($null -eq (Get-ChildItem -LiteralPath $Key -ErrorAction 'Stop')) {
                             Write-Verbose -Message "Delete registry key [$Key]"
                             $null = Remove-Item -LiteralPath $Key -Force -ErrorAction 'Stop'
                         }
                         Else {
-                            Throw "Unable to delete child key(s) of [$Key] without [-Recurse] switch"
+                            Write-Warning -Message "Unable to delete child key(s) of [$Key] without [-Recurse] switch"
+                            Throw
                         }
                     }
                 }
