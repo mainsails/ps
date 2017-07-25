@@ -53,28 +53,28 @@ Function Invoke-SCCMTask {
 
             ## Create a hashtable of Schedule IDs compatible with SCCM Client 2007
             [hashtable]$ScheduleIds = @{
-                HardwareInventory = '{00000000-0000-0000-0000-000000000001}';                        # Hardware Inventory Collection Task
-                SoftwareInventory = '{00000000-0000-0000-0000-000000000002}';                        # Software Inventory Collection Task
-                HeartbeatDiscovery = '{00000000-0000-0000-0000-000000000003}';                       # Heartbeat Discovery Cycle
-                SoftwareInventoryFileCollection = '{00000000-0000-0000-0000-000000000010}';          # Software Inventory File Collection Task
-                RequestMachinePolicy = '{00000000-0000-0000-0000-000000000021}';                     # Request Machine Policy Assignments
-                EvaluateMachinePolicy = '{00000000-0000-0000-0000-000000000022}';                    # Evaluate Machine Policy Assignments
-                RefreshDefaultMp = '{00000000-0000-0000-0000-000000000023}';                         # Refresh Default MP Task
-                RefreshLocationServices = '{00000000-0000-0000-0000-000000000024}';                  # Refresh Location Services Task
-                LocationServicesCleanup = '{00000000-0000-0000-0000-000000000025}';                  # Location Services Cleanup Task
-                SoftwareMeteringReport = '{00000000-0000-0000-0000-000000000031}';                   # Software Metering Report Cycle
-                SourceUpdate = '{00000000-0000-0000-0000-000000000032}';                             # Source Update Manage Update Cycle
-                PolicyAgentCleanup = '{00000000-0000-0000-0000-000000000040}';                       # Policy Agent Cleanup Cycle
-                RequestMachinePolicy2 = '{00000000-0000-0000-0000-000000000042}';                    # Request Machine Policy Assignments
-                CertificateMaintenance = '{00000000-0000-0000-0000-000000000051}';                   # Certificate Maintenance Cycle
-                PeerDistributionPointStatus = '{00000000-0000-0000-0000-000000000061}';              # Peer Distribution Point Status Task
-                PeerDistributionPointProvisioning = '{00000000-0000-0000-0000-000000000062}';        # Peer Distribution Point Provisioning Status Task
-                ComplianceIntervalEnforcement = '{00000000-0000-0000-0000-000000000071}';            # Compliance Interval Enforcement
+                HardwareInventory =                        '{00000000-0000-0000-0000-000000000001}'; # Hardware Inventory Collection Task
+                SoftwareInventory =                        '{00000000-0000-0000-0000-000000000002}'; # Software Inventory Collection Task
+                HeartbeatDiscovery =                       '{00000000-0000-0000-0000-000000000003}'; # Heartbeat Discovery Cycle
+                SoftwareInventoryFileCollection =          '{00000000-0000-0000-0000-000000000010}'; # Software Inventory File Collection Task
+                RequestMachinePolicy =                     '{00000000-0000-0000-0000-000000000021}'; # Request Machine Policy Assignments
+                EvaluateMachinePolicy =                    '{00000000-0000-0000-0000-000000000022}'; # Evaluate Machine Policy Assignments
+                RefreshDefaultMp =                         '{00000000-0000-0000-0000-000000000023}'; # Refresh Default MP Task
+                RefreshLocationServices =                  '{00000000-0000-0000-0000-000000000024}'; # Refresh Location Services Task
+                LocationServicesCleanup =                  '{00000000-0000-0000-0000-000000000025}'; # Location Services Cleanup Task
+                SoftwareMeteringReport =                   '{00000000-0000-0000-0000-000000000031}'; # Software Metering Report Cycle
+                SourceUpdate =                             '{00000000-0000-0000-0000-000000000032}'; # Source Update Manage Update Cycle
+                PolicyAgentCleanup =                       '{00000000-0000-0000-0000-000000000040}'; # Policy Agent Cleanup Cycle
+                RequestMachinePolicy2 =                    '{00000000-0000-0000-0000-000000000042}'; # Request Machine Policy Assignments
+                CertificateMaintenance =                   '{00000000-0000-0000-0000-000000000051}'; # Certificate Maintenance Cycle
+                PeerDistributionPointStatus =              '{00000000-0000-0000-0000-000000000061}'; # Peer Distribution Point Status Task
+                PeerDistributionPointProvisioning =        '{00000000-0000-0000-0000-000000000062}'; # Peer Distribution Point Provisioning Status Task
+                ComplianceIntervalEnforcement =            '{00000000-0000-0000-0000-000000000071}'; # Compliance Interval Enforcement
                 SoftwareUpdatesAgentAssignmentEvaluation = '{00000000-0000-0000-0000-000000000108}'; # Software Updates Agent Assignment Evaluation Cycle
-                UploadStateMessage = '{00000000-0000-0000-0000-000000000111}';                       # Send Unsent State Messages
-                StateMessageManager = '{00000000-0000-0000-0000-000000000112}';                      # State Message Manager Task
-                SoftwareUpdatesScan = '{00000000-0000-0000-0000-000000000113}';                      # Force Update Scan
-                AMTProvisionCycle = '{00000000-0000-0000-0000-000000000120}';                        # AMT Provision Cycle
+                UploadStateMessage =                       '{00000000-0000-0000-0000-000000000111}'; # Send Unsent State Messages
+                StateMessageManager =                      '{00000000-0000-0000-0000-000000000112}'; # State Message Manager Task
+                SoftwareUpdatesScan =                      '{00000000-0000-0000-0000-000000000113}'; # Force Update Scan
+                AMTProvisionCycle =                        '{00000000-0000-0000-0000-000000000120}'; # AMT Provision Cycle
             }
 
             ## If SCCM 2012 Client or higher, modify hashtabe containing Schedule IDs so that it only has the ones compatible with this version of the SCCM client
