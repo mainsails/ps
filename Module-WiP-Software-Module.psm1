@@ -3525,7 +3525,7 @@ Function New-Folder {
     .PARAMETER ContinueOnError
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
-        New-Folder -Path 'C:\Test'
+        New-Folder -Path 'C:\Path\To\Folder'
     #>
 
     [CmdletBinding()]
@@ -3579,7 +3579,7 @@ Function Remove-Folder {
     .PARAMETER ContinueOnError
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
-        Remove-Folder -Path 'C:\Test'
+        Remove-Folder -Path 'C:\Path\To\Folder'
     #>
 
     [CmdletBinding()]
@@ -3636,11 +3636,11 @@ Function Copy-File {
     .PARAMETER ContinueOnError
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
-        Copy-File -Path 'C:\Test\File01.txt' -Destination 'C:\Test2\CopyOfFile01.txt'
+        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt'
     .EXAMPLE
-        Copy-File -Path 'C:\Test\File01.txt' -Destination 'C:\Test2'
+        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2'
     .EXAMPLE
-        Copy-File -Path 'C:\Test\*' -Destination 'C:\Test2' -Recurse
+        Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse
         Copy all files and folders to a destination folder
     #>
 
@@ -3713,9 +3713,9 @@ Function Remove-File {
     .PARAMETER ContinueOnError
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
-        Remove-File -Path 'C:\Test2\File01.txt'
+        Remove-File -Path 'C:\Path\To\File\File01.txt'
     .EXAMPLE
-        Remove-File -LiteralPath 'C:\Test2' -Recurse
+        Remove-File -LiteralPath 'C:\Path\To\File' -Recurse
         Remove the folder and all contents
     #>
 
@@ -4024,3 +4024,10 @@ Function Get-PowerSupply {
 # Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String -Verbose
 # Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse -Verbose
 # Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName' -Verbose
+# New-Folder -Path 'C:\Path\To\Folder' -Verbose
+# Remove-Folder -Path 'C:\Path\To\Folder' -Verbose
+# Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt' -Verbose
+# Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2' -Verbose
+# Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse -Verbose
+# Remove-File -Path 'C:\Path\To\File\File01.txt' -Verbose
+# Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
