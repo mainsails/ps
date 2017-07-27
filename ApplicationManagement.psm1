@@ -2866,8 +2866,11 @@ Function Invoke-RegisterOrUnregisterDLL {
     .PARAMETER ContinueOnError
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
-        Invoke-RegisterOrUnregisterDLL -Path "C:\Path\To\File\My.dll" -Action 'Register'
+        Invoke-RegisterOrUnregisterDLL -Path 'C:\Path\To\File\My.dll' -Action 'Register'
         Register DLL file
+    .EXAMPLE
+        Invoke-RegisterOrUnregisterDLL -Path 'C:\Path\To\File\My.dll' -Action 'Unregister'
+        Unregister DLL file
     #>
 
     [CmdletBinding()]
