@@ -2767,6 +2767,200 @@ Function Start-EXEAsUser {
 }
 
 
+Function Get-PEFileArchitecture {
+    <#
+    .SYNOPSIS
+        Determine if a Portable Executable (PE) file is a 32-bit or a 64-bit file
+    .DESCRIPTION
+        Determine if a Portable Executable (PE) file is a 32-bit or a 64-bit file by examining the file's image file header
+        PE file extensions: '.acm', '.ax', '.cpl', '.dll', '.exe', '.drv', '.efi', '.fon', '.mui', '.ocx', '.scr', '.sys', '.tsp'
+    .PARAMETER Path
+        Path to the PE file to examine
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .PARAMETER PassThru
+        Get the file object, attach a property indicating the file binary type, and write to pipeline
+    .EXAMPLE
+        Get-PEFileArchitecture -Path "$env:windir\notepad.exe"
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [ValidateScript({ Test-Path -LiteralPath $_ -PathType 'Leaf' })]
+        [IO.FileInfo[]]$Path,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
+        [boolean]$ContinueOnError = $true,
+        [Parameter(Mandatory=$false)]
+        [switch]$PassThru
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+
+        [string[]]$PEFileExtensions = '.acm','.ax','.cpl','.dll','.exe','.drv','.efi','.fon','.mui','.ocx','.scr','.sys','.tsp'
+        [int32]$MACHINE_OFFSET      = 4
+        [int32]$PE_POINTER_OFFSET   = 60
+    }
+    Process {
+        ForEach ($File in $Path) {
+            Try {
+                If ($PEFileExtensions -notcontains $File.Extension) {
+                    Throw "Invalid file type. Please specify one of the following PE file types: $($PEFileExtensions -join ', ')"
+                }
+
+                [byte[]]$Data = New-Object -TypeName 'System.Byte[]' -ArgumentList 4096
+                $Stream = New-Object -TypeName 'System.IO.FileStream' -ArgumentList ($File.FullName, 'Open', 'Read')
+                $null = $Stream.Read($Data, 0, 4096)
+                $Stream.Flush()
+                $Stream.Close()
+
+                [int32]$PE_HEADER_ADDR        = [BitConverter]::ToInt32($Data, $PE_POINTER_OFFSET)
+                [uint16]$PE_IMAGE_FILE_HEADER = [BitConverter]::ToUInt16($Data, $PE_HEADER_ADDR + $MACHINE_OFFSET)
+                Switch ($PE_IMAGE_FILE_HEADER) {
+                    0       { $PEArchitecture = 'Native' }      # The contents of this type are assumed to be applicable to any machine type
+                    0x014c  { $PEArchitecture = '32bit' }       # I386 - Intel 386 or later processors and compatible processors
+                    0x0200  { $PEArchitecture = 'Itanium-x64' } # IA64 - Intel Itanium processor family
+                    0x8664  { $PEArchitecture = '64bit' }       # AMD64 - x64
+                    Default { $PEArchitecture = 'Unknown' }
+                }
+                Write-Verbose -Message "File [$($File.FullName)] has a detected file architecture of [$PEArchitecture]"
+
+                If ($PassThru) {
+                    # Get the file object, attach a property indicating the type and write to pipeline
+                    Get-Item -LiteralPath $File.FullName -Force | Add-Member -MemberType 'NoteProperty' -Name 'BinaryType' -Value $PEArchitecture -Force -PassThru | Write-Output
+                }
+                Else {
+                    Write-Output -InputObject $PEArchitecture
+                }
+            }
+            Catch {
+                Write-Warning -Message 'Failed to get the PE file architecture'
+                If (-not $ContinueOnError) {
+                    Throw "Failed to get the PE file architecture: $($_.Exception.Message)"
+                }
+            }
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
+Function Invoke-RegisterOrUnregisterDLL {
+    <#
+    .SYNOPSIS
+        Register or unregister a DLL file
+    .DESCRIPTION
+        Register or unregister a DLL file using regsvr32.exe. Function can be invoked using alias: 'Register-DLL' or 'Unregister-DLL'
+    .PARAMETER Path
+        Path to the DLL file
+    .PARAMETER Action
+        Specify whether to Register or Unregister the DLL
+    .PARAMETER ContinueOnError
+        Continue if an error is encountered. Default is: $true
+    .EXAMPLE
+        Invoke-RegisterOrUnregisterDLL -Path "C:\Path\To\File\My.dll" -Action 'Register'
+        Register DLL file
+    #>
+
+    [CmdletBinding()]
+    Param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullorEmpty()]
+        [string]$Path,
+        [Parameter(Mandatory=$true)]
+        [ValidateSet('Register','Unregister')]
+        [string]$Action,
+        [Parameter(Mandatory=$false)]
+        [ValidateNotNullorEmpty()]
+        [boolean]$ContinueOnError = $true
+    )
+
+    Begin {
+        # Verbose Logging
+        [string]$CmdletName  = $MyInvocation.MyCommand.Name
+        [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
+        Write-Verbose -Message "##### Calling : [$CmdletName]"
+
+        # Set the DLL register/unregister action parameters
+        [string]$Action = ((Get-Culture).TextInfo).ToTitleCase($Action.ToLower())
+        Switch ($Action) {
+            'Register'   { [string]$ActionParameters = "/s `"$Path`"" }
+            'Unregister' { [string]$ActionParameters = "/s /u `"$Path`"" }
+        }
+
+        # Get OS Architecture
+        [boolean]$Is64Bit = [boolean]((Get-WmiObject -Class 'Win32_Processor' -ErrorAction 'SilentlyContinue' | Where-Object { $_.DeviceID -eq 'CPU0' } | Select-Object -ExpandProperty 'AddressWidth') -eq 64)
+
+        # Get Process architecture
+        [boolean]$Is64BitProcess = [boolean]([IntPtr]::Size -eq 8)
+    }
+    Process {
+        Try {
+            Write-Verbose -Message "$Action DLL file [$Path]"
+            If (-not (Test-Path -LiteralPath $Path -PathType 'Leaf')) {
+                Throw "File [$Path] could not be found"
+            }
+
+            [string]$DLLFileArchitecture = Get-PEFileArchitecture -Path $Path -ContinueOnError $false -ErrorAction 'Stop'
+            If (($DLLFileArchitecture -ne '64bit') -and ($DLLFileArchitecture -ne '32bit')) {
+                Throw "File [$Path] has a detected file architecture of [$DLLFileArchitecture]. Only 32-bit or 64-bit DLL files can be $($Action.ToLower() + 'ed')"
+            }
+
+            If ($Is64Bit) {
+                If ($DLLFileArchitecture -eq '64bit') {
+                    If ($Is64BitProcess) {
+                        [string]$RegSvr32Path = "$env:windir\System32\regsvr32.exe"
+                    }
+                    Else {
+                        [string]$RegSvr32Path = "$env:windir\sysnative\regsvr32.exe"
+                    }
+                }
+                ElseIf ($DLLFileArchitecture -eq '32bit') {
+                    [string]$RegSvr32Path = "$env:windir\SysWOW64\regsvr32.exe"
+                }
+            }
+            Else {
+                If ($DLLFileArchitecture -eq '64bit') {
+                    Throw "File [$Path] cannot be $($Action.ToLower()) because it is a 64-bit file on a 32-bit operating system"
+                }
+                ElseIf ($DLLFileArchitecture -eq '32bit') {
+                    [string]$RegSvr32Path = "$env:windir\system32\regsvr32.exe"
+                }
+            }
+
+            [psobject]$ExecuteResult = Start-EXE -Path $RegSvr32Path -Parameters $ActionParameters -PassThru
+
+            If ($ExecuteResult.ExitCode -ne 0) {
+                If ($ExecuteResult.ExitCode -eq 60002) {
+                    Throw "Start-EXE function failed with exit code [$($ExecuteResult.ExitCode)]"
+                }
+                Else {
+                    Throw "regsvr32.exe failed with exit code [$($ExecuteResult.ExitCode)]"
+                }
+            }
+        }
+        Catch {
+            Write-Warning -Message "Failed to $($Action.ToLower()) DLL file"
+            If (-not $ContinueOnError) {
+                Throw "Failed to $($Action.ToLower()) DLL file: $($_.Exception.Message)"
+            }
+        }
+    }
+    End {
+        # Verbose Logging
+        Write-Verbose -Message "##### Ending : [$CmdletName]"
+    }
+}
+
+
 Function Get-PendingReboot {
     <#
     .SYNOPSIS
