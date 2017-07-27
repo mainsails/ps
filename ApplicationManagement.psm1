@@ -3654,7 +3654,7 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
                     # Load the User registry hive if the registry hive file exists
                     If (Test-Path -LiteralPath $UserRegistryHiveFile -PathType 'Leaf') {
                         Write-Verbose -Message "Load the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
-                        [string]$HiveLoadResult = & reg.exe load "`"HKEY_USERS\$($UserProfile.SID)`"" "`"$UserRegistryHiveFile`""
+                        [string]$HiveLoadResult = & reg.exe load "`"HKEY_USERS\$($UserProfile.SID)`"" "`"$UserRegistryHiveFile`"" 2>&1
 
                         If ($global:LastExitCode -ne 0) {
                             Throw "Failed to load the registry hive for User [$($UserProfile.NTAccount)] with SID [$($UserProfile.SID)]. Failure message [$HiveLoadResult]. Continue..."
@@ -3682,7 +3682,7 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
                 If ($ManuallyLoadedRegHive) {
                     Try {
                         Write-Verbose -Message "Unload the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
-                        [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`""
+                        [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`"" 2>&1
 
                         If ($global:LastExitCode -ne 0) {
                             Write-Warning -Message "REG.exe failed to unload the registry hive and exited with exit code [$($global:LastExitCode)]. Performing manual garbage collection to ensure successful unloading of registry hive"
@@ -3691,7 +3691,7 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
                             Start-Sleep -Seconds 5
 
                             Write-Verbose -Message "Unload the User [$($UserProfile.NTAccount)] registry hive in path [HKEY_USERS\$($UserProfile.SID)]"
-                            [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`""
+                            [string]$HiveLoadResult = & reg.exe unload "`"HKEY_USERS\$($UserProfile.SID)`"" 2>&1
                             If ($global:LastExitCode -ne 0) {
                                 Throw "reg.exe failed with exit code [$($global:LastExitCode)] and result [$HiveLoadResult]"
                             }
