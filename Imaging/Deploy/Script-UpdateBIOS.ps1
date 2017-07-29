@@ -57,7 +57,7 @@ If ($BIOSSource) {
         Write-CMTraceLog "New BIOS copied from $BIOSSource to $env:TEMP\$Model)"
         Write-CMTraceLog "BIOS Executable Vendor detected as : $($BIOSSource.Parent.Name)"
         If ($BIOSSource.Parent.Name -eq 'Dell') {
-            $UpdateArgs = '/s /f /p=m8E1StR0m'
+            $UpdateArgs = '/s /f /p=BIOSPassword'
         }
         ElseIf ($BIOSSource.Parent.Name -eq 'HP') {
             $UpdateArgs = ''
