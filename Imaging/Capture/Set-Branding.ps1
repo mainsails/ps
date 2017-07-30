@@ -13,7 +13,7 @@ $Model   = Get-WmiObject -Class win32_computersystem
 
 If ((Test-Path "$env:windir\System32\oobe\info") -eq $false) {
     New-Item "$env:windir\System32\oobe\info" -ItemType Directory
-    }
+}
 Copy-Item        -Path $Avatar  -Destination "$env:windir\System32\oobe\info\$AvatarFile"
 Set-ItemProperty -Path $OEMInfo -Name Logo         -Value "$env:windir\System32\oobe\info\$AvatarFile"
 Set-ItemProperty -Path $OEMInfo -Name Manufacturer -Value "My Company"
