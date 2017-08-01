@@ -21,7 +21,7 @@ $Log     = "$LogPath\$(([io.fileinfo]$MyInvocation.MyCommand.Definition).BaseNam
 
 Write-CMTraceLog "BIOS Update Scan Starting"
 
-$BIOSPassword  = 'm8E1StR0m'
+$BIOSPassword  = 'BIOSPassword'
 
 $BIOSStructure = Split-Path $MyInvocation.MyCommand.Path -Parent
 $SystemInfo    = Get-WmiObject -Class Win32_ComputerSystem
