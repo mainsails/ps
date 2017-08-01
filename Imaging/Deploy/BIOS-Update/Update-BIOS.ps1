@@ -1,5 +1,5 @@
 Function Write-CMTraceLog {
-    param (
+    Param (
         [Parameter(Mandatory = $true)]
         [string]$Message,
         [int]$ProcessID = $PID,
