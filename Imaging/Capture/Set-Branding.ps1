@@ -17,5 +17,6 @@ If ((Test-Path "$env:windir\System32\oobe\info") -eq $false) {
 Copy-Item        -Path $Avatar  -Destination "$env:windir\System32\oobe\info\$AvatarFile"
 Set-ItemProperty -Path $OEMInfo -Name Logo         -Value "$env:windir\System32\oobe\info\$AvatarFile"
 Set-ItemProperty -Path $OEMInfo -Name Manufacturer -Value "My Company"
+Set-ItemProperty -Path $OEMInfo -Name Model        -Value $Model.Model
 Set-ItemProperty -Path $OEMInfo -Name SupportPhone -Value "0800 800 800"
 Set-ItemProperty -Path $OEMInfo -Name SupportURL   -Value "https://support.website.com"
