@@ -323,7 +323,7 @@ Function Start-MSI {
 
         # Get the ProductCode of the MSI
         If ($PathIsProductCode) {
-            [string]$MSIProductCode = $path
+            [string]$MSIProductCode = $Path
         }
         ElseIf ([IO.Path]::GetExtension($msiFile) -eq '.msi') {
             Try {
