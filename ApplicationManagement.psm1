@@ -265,8 +265,8 @@ Function Start-MSI {
         # Build Log File Name
         If ($Path -match $MSIProductCodeRegExPattern) {
             [boolean]$PathIsProductCode = $true
-            Write-Verbose -Message 'Resolve product code to a publisher, application name, and version'
-            [psobject]$ProductCodeNameVersion = Get-InstalledApplication -ProductCode $path | Select-Object -Property 'Publisher', 'DisplayName', 'DisplayVersion' -First 1 -ErrorAction 'SilentlyContinue'
+            Write-Verbose -Message 'Resolving product code to a publisher, application name, and version'
+            [psobject]$ProductCodeNameVersion = Get-InstalledApplication -ProductCode $Path | Select-Object -Property 'Publisher', 'DisplayName', 'DisplayVersion' -First 1 -ErrorAction 'SilentlyContinue'
             If ($ProductCodeNameVersion.Publisher) {
                 $LogName = ($ProductCodeNameVersion.Publisher + '_' + $ProductCodeNameVersion.DisplayName + '_' + $ProductCodeNameVersion.DisplayVersion) -replace "[$InvalidFileNameChars]",'' -replace ' ',''
             }
