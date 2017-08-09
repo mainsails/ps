@@ -543,10 +543,11 @@ Function Start-EXE {
             Else {
                 # Add current location to PATH environmental variable
                 [string]$CurrentFolder = (Get-Location -PSProvider 'FileSystem').Path
-                $env:PATH = $CurrentFolder + ';' + $env:PATH
+                [string]$envPATH       = $env:PATH
+                $env:PATH              = $CurrentFolder + ';' + $env:PATH
                 # Get the fully qualified path from and revert PATH environmental variable
                 [string]$FullyQualifiedPath = Get-Command -Name $Path -CommandType 'Application' -TotalCount 1 -Syntax -ErrorAction 'Stop'
-                $env:PATH = $env:PATH -replace [regex]::Escape($CurrentFolder + ';'), ''
+                $env:PATH = $envPATH
                 If ($FullyQualifiedPath) {
                     Write-Verbose -Message "[$Path] successfully resolved to fully qualified path [$FullyQualifiedPath]"
                     $Path = $FullyQualifiedPath
