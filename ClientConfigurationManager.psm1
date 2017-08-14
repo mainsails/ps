@@ -38,7 +38,7 @@ Function Invoke-SCCMTask {
             If ($(Get-Service -Name 'ccmexec' -ErrorAction 'SilentlyContinue').Status -ne 'Running') {
                 Throw "SCCM Client Service [ccmexec] exists but it is not in a 'Running' state"
             }
-            Else {
+            If (-not $(Get-Service -Name 'ccmexec' -ErrorAction 'SilentlyContinue')) {
                 Throw 'SCCM Client Service [ccmexec] does not exist. The SCCM Client may not be installed'
             }
 
@@ -150,7 +150,7 @@ Function Install-SCCMSoftwareUpdates {
             If ($(Get-Service -Name 'ccmexec' -ErrorAction 'SilentlyContinue').Status -ne 'Running') {
                 Throw "SCCM Client Service [ccmexec] exists but it is not in a 'Running' state"
             }
-            Else {
+            If (-not $(Get-Service -Name 'ccmexec' -ErrorAction 'SilentlyContinue')) {
                 Throw 'SCCM Client Service [ccmexec] does not exist. The SCCM Client may not be installed'
             }
 
