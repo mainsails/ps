@@ -7,7 +7,7 @@ Function Import-ModuleFromGitHub {
     .PARAMETER Uri
         The Uri of the GitHub hosted PowerShell Module (raw psm1)
     .EXAMPLE
-        Import-ModuleFromGitHub -Uri 'https://raw.githubusercontent.com/mainsails/ps/master/ApplicationManagement.psm1'
+        Import-ModuleFromGitHub -Uri 'https://raw.githubusercontent.com/mainsails/ps/master/ClientConfigurationManager.psm1'
     .EXAMPLE
         $Uri = 'https://raw.githubusercontent.com/mainsails/ps/master/ApplicationManagement.psm1'
         Import-ModuleFromGitHub -Uri $Uri -Verbose
