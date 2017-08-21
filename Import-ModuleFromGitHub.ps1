@@ -27,9 +27,6 @@ Function Import-ModuleFromGitHub {
         [string]$CmdletName  = $MyInvocation.MyCommand.Name
         [string]$CmdletParam = $PSBoundParameters | Format-Table -Property @{ Label = 'Parameter'; Expression = { "[-$($_.Key)]" } }, @{ Label = 'Value'; Expression = { $_.Value }; Alignment = 'Left' } -AutoSize -Wrap | Out-String
         Write-Verbose -Message "##### Calling : [$CmdletName]"
-
-        # URL RegEx Pattern
-        [regex]$UriRegExPattern = '^(https?)'
     }
     Process {
         Foreach ($Address in $Uri) {
