@@ -18,7 +18,7 @@ Function Import-ModuleFromGitHub {
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [ValidateScript({ ($_ -match '^https?') })]
         [Alias('Url')]
-        [string]$Uri
+        [string[]]$Uri
     )
 
     Begin {
@@ -31,23 +31,25 @@ Function Import-ModuleFromGitHub {
         [regex]$UriRegExPattern = '^(https?)'
     }
     Process {
-        Try {
-            $Module = Split-Path -Path $Uri -Leaf
-            $Destination = $env:TEMP + '\' + $Module
+        Foreach ($Address in $Uri) {
             Try {
-                # Download PowerShell Module
-                Write-Verbose -Message "Downloading PowerShell Module [$Module] from Uri [$Uri]"
-                Invoke-WebRequest -Uri $Uri -UseBasicParsing -OutFile $Destination -ErrorAction Stop
-                # Import PowerShell Module
-                Write-Verbose -Message "Importing PowerShell Module [$Module] from File [$Destination]"
-                Import-Module -Name $Destination -ErrorAction Stop
+                $Module = Split-Path -Path $Address -Leaf
+                $Destination = $env:TEMP + '\' + $Module
+                Try {
+                    # Download PowerShell Module
+                    Write-Verbose -Message "Downloading PowerShell Module [$Module] from Uri [$Address]"
+                    Invoke-WebRequest -Uri $Address -UseBasicParsing -OutFile $Destination -ErrorAction Stop
+                    # Import PowerShell Module
+                    Write-Verbose -Message "Importing PowerShell Module [$Module] from File [$Destination]"
+                    Import-Module -Name $Destination -ErrorAction Stop
+                }
+                Catch {
+                    Write-Warning -Message "Failed to download module : $($_.Exception.Message)"
+                }
             }
             Catch {
-                Throw "Failed to download module : $($_.Exception.Message)"
+                Write-Warning -Message "Failed to import module : $($_.Exception.Message)"
             }
-        }
-        Catch {
-            Throw "Failed to import module : $($_.Exception.Message)"
         }
     }
     End {
