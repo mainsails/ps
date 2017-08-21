@@ -12,6 +12,7 @@ Function Import-ModuleFromGitHub {
         $Uri = 'https://raw.githubusercontent.com/mainsails/ps/master/ApplicationManagement.psm1'
         Import-ModuleFromGitHub -Uri $Uri -Verbose
     #>
+    #Requires -Version 3.0
 
     [CmdletBinding()]
     Param (
@@ -39,13 +40,17 @@ Function Import-ModuleFromGitHub {
                     # Download PowerShell Module
                     Write-Verbose -Message "Downloading PowerShell Module [$Module] from Uri [$Address]"
                     Invoke-WebRequest -Uri $Address -UseBasicParsing -OutFile $Destination -ErrorAction Stop
-                    # Import PowerShell Module
-                    Write-Verbose -Message "Importing PowerShell Module [$Module] from File [$Destination]"
-                    Import-Module -Name $Destination -ErrorAction Stop
                 }
                 Catch {
                     Write-Warning -Message "Failed to download module : $($_.Exception.Message)"
+                    continue
                 }
+                # Import PowerShell Module
+                Write-Verbose -Message "Importing PowerShell Module [$Module] from File [$Destination]"
+                Import-Module -Name $Destination -DisableNameChecking -Force -ErrorAction Stop
+                # Remove PowerShell Module Source
+                Write-Verbose -Message "Removing PowerShell Module Source [$Destination]"
+                Remove-Item $Destination -Force
             }
             Catch {
                 Write-Warning -Message "Failed to import module : $($_.Exception.Message)"
