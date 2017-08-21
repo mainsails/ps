@@ -40,7 +40,7 @@ Function Import-ModuleFromGitHub {
                 }
                 Catch {
                     Write-Warning -Message "Failed to download module : $($_.Exception.Message)"
-                    continue
+                    Continue
                 }
                 # Import PowerShell Module
                 Write-Verbose -Message "Importing PowerShell Module [$Module] from File [$Destination]"
