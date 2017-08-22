@@ -113,6 +113,18 @@ Function Get-InstalledApplication {
         Include matches against updates and hotfixes in results
     .EXAMPLE
         Get-InstalledApplication -Name '7-Zip'
+        InstallSource      : C:\Installers\
+        UninstallString    : MsiExec.exe /I{23170F69-40C1-2702-1604-000001000000}
+        UninstallSubkey    : {23170F69-40C1-2702-1604-000001000000}
+        InstallLocation    : 
+        ProductCode        : {23170F69-40C1-2702-1604-000001000000}
+        Is64BitApplication : True
+        Publisher          : Igor Pavlov
+        InstallDate        : 20170822
+        DisplayVersion     : 16.04.00.0
+        DisplayName        : 7-Zip 16.04 (x64 edition)
+
+        This command returns all installed applications matching a wildcard product name search for '7-Zip'
     .EXAMPLE
         Get-InstalledApplication -ProductCode '{23170F69-40C1-2702-1604-000001000000}'
     #>
@@ -1425,11 +1437,51 @@ Function Get-MsiTableProperty {
     .PARAMETER TablePropertyValueColumnNum
         Specify the table column number which contains the value of the properties. Default is: 2 for MSIs and 3 for MSPs
     .EXAMPLE
-        Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi' -TransformPath 'C:\Path\To\File\7z1604-x64.mst'
+        Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi'
+
+        UpgradeCode                          : {23170F69-40C1-2702-0000-000004000000}
+        LicenseAccepted                      : 1
+        Manufacturer                         : Igor Pavlov
+        ProductCode                          : {23170F69-40C1-2702-1604-000001000000}
+        ProductLanguage                      : 1033
+        ProductName                          : 7-Zip 16.04 (x64 edition)
+        ProductVersion                       : 16.04.00.0
+        ALLUSERS                             : 2
+        ARPURLINFOABOUT                      : http://www.7-zip.org/
+        ARPHELPLINK                          : http://www.7-zip.org/support.html
+        ARPURLUPDATEINFO                     : http://www.7-zip.org/download.html
+        DefaultUIFont                        : WixUI_Font_Normal
+        WixUI_Mode                           : FeatureTree
+        WixUI_WelcomeDlg_Next                : LicenseAgreementDlg
+        WixUI_LicenseAgreementDlg_Back       : WelcomeDlg
+        WixUI_LicenseAgreementDlg_Next       : CustomizeDlg
+        WixUI_CustomizeDlg_BackChange        : MaintenanceTypeDlg
+        WixUI_CustomizeDlg_BackCustom        : SetupTypeDlg
+        WixUI_CustomizeDlg_BackFeatureTree   : LicenseAgreementDlg
+        WixUI_CustomizeDlg_Next              : VerifyReadyDlg
+        WixUI_VerifyReadyDlg_BackCustom      : CustomizeDlg
+        WixUI_VerifyReadyDlg_BackChange      : CustomizeDlg
+        WixUI_VerifyReadyDlg_BackRepair      : MaintenanceTypeDlg
+        WixUI_VerifyReadyDlg_BackTypical     : SetupTypeDlg
+        WixUI_VerifyReadyDlg_BackFeatureTree : CustomizeDlg
+        WixUI_VerifyReadyDlg_BackComplete    : SetupTypeDlg
+        WixUI_MaintenanceWelcomeDlg_Next     : MaintenanceTypeDlg
+        WixUI_MaintenanceTypeDlg_Change      : CustomizeDlg
+        WixUI_MaintenanceTypeDlg_Repair      : VerifyRepairDlg
+        WixUI_MaintenanceTypeDlg_Remove      : VerifyRemoveDlg
+        WixUI_MaintenanceTypeDlg_Back        : MaintenanceWelcomeDlg
+        WixUI_VerifyRemoveDlg_Back           : MaintenanceTypeDlg
+        WixUI_VerifyRepairDlg_Back           : MaintenanceTypeDlg
+        ErrorDialog                          : ErrorDlg
+        SecureCustomProperties               : OLDERVERSIONBEINGUPGRADED
+        
         Retrieve all of the properties from the default 'Property' table
     .EXAMPLE
+        Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi' -TransformPath 'C:\Path\To\File\7z1604-x64.mst'
+        Retrieve all of the properties from the default 'Property' table of the msi and applied transform
+    .EXAMPLE
         Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi' -TransformPath 'C:\Path\To\File\7z1604-x64.mst' -Table 'Property' | Select-Object -ExpandProperty ProductCode
-        Retrieve all of the properties from the 'Property' table and then pipe to Select-Object to select the ProductCode property
+        Retrieve all of the properties from the 'Property' table of the msi and applied transform, then pipe to Select-Object to select the ProductCode property
     #>
 
     [CmdletBinding(DefaultParameterSetName='TableInfo')]
@@ -1561,6 +1613,9 @@ Function Get-FreeDiskSpace {
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
         Get-FreeDiskSpace -Drive 'C:'
+        223335
+        
+        Retrieves the remaining disk space on drive 'C:' in MB
     #>
 
     [CmdletBinding()]
@@ -1612,6 +1667,10 @@ Function Get-MSIErrorCodeMessage {
         MSI error code
     .EXAMPLE
         Get-MSIErrorCodeMessage -MSIErrorCode 1618
+        
+        Another program is being installed. Please wait until that installation is complete, and then try installing this software again.
+        
+        Retrieves the description string for MSI error code 1618
     #>
 
     [CmdletBinding()]
