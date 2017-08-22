@@ -537,7 +537,7 @@ Function Start-MSP {
         Write-Verbose -Message 'Checking MSP file for valid product codes'
         [boolean]$IsMSPNeeded = $false
         $Installer = New-Object -ComObject WindowsInstaller.Installer
-        $Database = $Installer.GetType().InvokeMember(“OpenDatabase”, “InvokeMethod”, $Null, $Installer, $($mspFile,([int32]32)))
+        $Database = $Installer.GetType().InvokeMember("OpenDatabase", "InvokeMethod", $Null, $Installer, $($mspFile,([int32]32)))
         [__comobject]$SummaryInformation = Get-ObjectProperty -InputObject $Database -PropertyName 'SummaryInformation'
         [hashtable]$SummaryInfoProperty = @{}
         $InstallerProperties = (Get-ObjectProperty -InputObject $SummaryInformation -PropertyName 'Property' -ArgumentList @(7)).Split(";")
