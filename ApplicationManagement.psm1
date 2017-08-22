@@ -1,5 +1,100 @@
-﻿#Requires -Version 4.0
+<#
+    .SYNOPSIS
+        The Application Management module enables a set of functions to perform common application deployment tasks
+    .DESCRIPTION
+        The Application Management module enables a set of functions to perform common application deployment tasks including :
+        - Extensive verbose logging of both the functions and any MSI installation / uninstallation
+        - The ability to execute any type of setup (MSI or EXEs) and handle / translate the return codes
+        - Mass remove MSI applications with a partial match (e.g. remove all versions of all MSI applications which match "Java").
+        - Check for in-progress MSI installations and wait for the MSI Mutex to become available
+        - Update Group Policy
+        - Copy / Delete Files
+        - Get / Set / Remove Registry Keys and Values
+        - Check File versions
+        - Create Start Menu Shortcuts
+        - Register / Unregister DLL files
+        - Refresh desktop icons
+        - Test power connectivity
+    .EXAMPLE
+        Get-InstalledApplication -Name '7-Zip'
+    .EXAMPLE
+        Get-InstalledApplication -ProductCode '{23170F69-40C1-2702-1604-000001000000}'
+    .EXAMPLE
+        Start-MSI -Action Install -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
+    .EXAMPLE
+        Start-MSI -Action Uninstall -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
+    .EXAMPLE
+        Start-MSI -Action Uninstall -Path '{23170F69-40C1-2702-1604-000001000000}' -Verbose
+    .EXAMPLE
+        Start-EXE -Path 'C:\Path\To\File\7z1604-x64.exe' -Parameters '/S' -Verbose
+    .EXAMPLE
+        Start-MSP -Path 'C:\Path\To\File\Adobe_Acrobat_DC_x64_EN.msp' -Verbose
+    .EXAMPLE
+        Remove-MSIApplication -Name 'Java' -Verbose
+    .EXAMPLE
+        Remove-MSIApplication -Name 'Java' -Verbose -ExcludeFromUninstall (,('DisplayName', 'Java(TM) 6 Update 31', 'RegEx'))
+    .EXAMPLE
+        Start-EXEAsUser -UserName 'Domain\UserName' -Path 'C:\Path\To\File\7zFM.exe' -Wait -Verbose
+    .EXAMPLE
+        Start-EXEAsUser -UserName 'Domain\UserName' -Path 'PowerShell.exe' -Parameters '-Command C:\Path\To\File\Script.ps1'
+    .EXAMPLE
+        Set-ActiveSetup -StubEXEPath "$env:WinDir\regedit.exe" -Arguments "/S `"C:\Path\To\File\HKCURegistryChange.reg`"" -Description 'HKCU Registry Change' -Key 'HKCU_Registry_Change' -Verbose
+    .EXAMPLE
+        Set-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Verbose
+    .EXAMPLE
+        Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String -Verbose
+    .EXAMPLE
+        Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse -Verbose
+    .EXAMPLE
+        Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName' -Verbose
+    .EXAMPLE
+        New-Folder -Path 'C:\Path\To\Folder' -Verbose
+    .EXAMPLE
+        Remove-Folder -Path 'C:\Path\To\Folder' -Verbose
+    .EXAMPLE
+        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt' -Verbose
+    .EXAMPLE
+        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2' -Verbose
+    .EXAMPLE
+        Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse -Verbose
+    .EXAMPLE
+        Remove-File -Path 'C:\Path\To\File\File01.txt' -Verbose
+    .EXAMPLE
+        Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
+    .EXAMPLE
+        New-Shortcut -Path 'C:\Path\To\File\TestProgram.lnk' -TargetPath "$env:windir\System32\notepad.exe" -IconLocation "$env:windir\system32\notepad.exe" -Description 'Notepad Shortcut'
+    .EXAMPLE
+        Get-FileVersion -File 'C:\Path\To\File\7z1604-x64.exe'
+    .EXAMPLE
+        Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi'
+    .EXAMPLE
+        Get-FreeDiskSpace -Drive 'C:'
+    .EXAMPLE
+        Get-MSIErrorCodeMessage -MSIErrorCode 1618
+    .EXAMPLE
+        Get-LoggedOnUser
+    .EXAMPLE
+        Get-UserProfiles
+    .EXAMPLE
+        Update-Desktop
+    .EXAMPLE
+        Update-GroupPolicy
+    .EXAMPLE
+        Get-PowerSupply
+    .EXAMPLE
+        (Get-PowerSupply).IsLaptop
+    .EXAMPLE
+        Get-PendingReboot
+    .EXAMPLE
+        (Get-PendingReboot).LastBootUpTime
+    .EXAMPLE
+        Block-AppExecution -ProcessName 'excel','winword' -Verbose
+    .EXAMPLE
+        Unblock-AppExecution -Verbose
+#>
+#Requires -Version 4.0
 #Requires -RunAsAdministrator
+
 
 Function Get-InstalledApplication {
     <#
@@ -4255,7 +4350,7 @@ Function Get-PowerSupply {
         Determines if the current system is a laptop or not
     .EXAMPLE
         (Get-PowerSupply).IsUsingACPower
-        Determines if the current system is a laptop or not
+        Determines if the current system is currently connected to AC Power or not
     .NOTES
         IsLaptop - [Boolean]
         IsUsingACPower - [Boolean]
