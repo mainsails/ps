@@ -43,7 +43,7 @@ Function Send-WoL {
         $IPEndPoint = New-Object Net.IPEndPoint $Broadcast, $Port
 
         # Construct physical address for the MAC address of the machine (string to byte array)
-        $MACAddress = (($MACAddress.Replace(":","")).Replace("-","")).Replace(".","")
+        $MACAddress = (($MACAddress.Replace(':','')).Replace('-','')).Replace('.','')
         $MAC        = [Net.NetworkInformation.PhysicalAddress]::Parse($MACAddress.ToUpper())
 
         # Construct the Magic Packet frame
