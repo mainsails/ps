@@ -47,7 +47,7 @@ Function Import-ModuleFromGitHub {
                 Import-Module -Name $Destination -DisableNameChecking -Force -ErrorAction Stop
                 # Remove PowerShell Module Source
                 Write-Verbose -Message "Removing PowerShell Module Source [$Destination]"
-                Remove-Item $Destination -Force
+                Remove-Item -Path $Destination -Force
             }
             Catch {
                 Write-Warning -Message "Failed to import module : $($_.Exception.Message)"
