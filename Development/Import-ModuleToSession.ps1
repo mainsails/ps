@@ -1,12 +1,11 @@
 ﻿Function Import-ModuleToSession {
     Param (
-        [string]$ModuleName,
+        [string]$Name,
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
-    $LocalModule = Get-Module -Name $ModuleName
-    If (-not ($LocalModule)) {
-        Write-Warning -Message "Module [$ModuleName] does not exist"
+    If (-not ($LocalModule = Get-Module -Name $Name)) {
+        Write-Warning -Message "Module [$Name] does not exist"
         return
     }
 
@@ -29,10 +28,10 @@
     $Exports   = "Export-ModuleMember -Function $Functions -Alias $Aliases -Cmdlet $Cmdlets -Variable $Vars"
 
     $ModuleString = @"
-If (Get-Module -Name $ModuleName) {
-    Remove-Module -Name $ModuleName
+If (Get-Module -Name $LocalModule.Name) {
+    Remove-Module -Name $LocalModule.Name
 }
-New-Module -Name $ModuleName {
+New-Module -Name $LocalModule.Name {
     $($LocalModule.Definition)
     $Exports
 } | Import-Module
