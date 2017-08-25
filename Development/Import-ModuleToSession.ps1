@@ -1,19 +1,18 @@
 ﻿Function Import-ModuleToSession {
     Param (
-        [string]$ModuleName
+        [string]$ModuleName,
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
-    Try {
-        $LocalModule = Get-Module -Name $ModuleName -ErrorAction Stop
-    }
-    Catch {
-        Write-Error -Message "Module [$LocalModule] does not exist"
+    $LocalModule = Get-Module -Name $ModuleName
+    If (-not ($LocalModule)) {
+        Write-Warning -Message "Module [$ModuleName] does not exist"
+        return
     }
 
     Function Export {
         Param (
-            [string]$ParamName
+            [string]$ParamName,
             $Dictionary
         )
 
