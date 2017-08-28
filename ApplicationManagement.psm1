@@ -1692,9 +1692,10 @@ Function Get-MSIErrorCodeMessage {
 using System;
 using System.Text;
 using System.Runtime.InteropServices;
+
 namespace PSSM
 {
-    public class Msi
+  public class Msi
   {
     enum LoadLibraryFlags : int
     {
@@ -2010,7 +2011,7 @@ using FILETIME = System.Runtime.InteropServices.ComTypes.FILETIME;
 
 namespace PSSM
 {
-    public class QueryUser
+  public class QueryUser
   {
     [DllImport("wtsapi32.dll", CharSet = CharSet.Auto, SetLastError = false)]
     public static extern IntPtr WTSOpenServer(string pServerName);
@@ -2462,7 +2463,6 @@ namespace PSSM
   }
 }
 "@
-
             Write-Verbose -Message 'Loading C# Namespace'
             Add-Type -ReferencedAssemblies $ReferencedAssemblies -TypeDefinition $CSSourceCode -Language CSharp
         }
@@ -3396,7 +3396,6 @@ namespace PSSM
   }
 }
 "@
-
             Write-Verbose -Message 'Loading C# Namespace'
             Add-Type -TypeDefinition $CSSourceCode -Language CSharp
         }
