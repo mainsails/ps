@@ -1,96 +1,96 @@
 <#
-    .SYNOPSIS
-        The Application Management module enables a set of functions to perform common application deployment tasks
-    .DESCRIPTION
-        The Application Management module enables a set of functions to perform common application deployment tasks including :
-        - Extensive verbose logging of both the functions and any MSI installation / uninstallation
-        - The ability to execute any type of setup (MSI or EXEs) and handle / translate the return codes
-        - Mass remove MSI applications with a partial match (e.g. remove all versions of all MSI applications which match "Java").
-        - Check for in-progress MSI installations and wait for the MSI Mutex to become available
-        - Update Group Policy
-        - Copy / Delete Files
-        - Get / Set / Remove Registry Keys and Values
-        - Check File versions
-        - Create Start Menu Shortcuts
-        - Register / Unregister DLL files
-        - Refresh desktop icons
-        - Test power connectivity
-    .EXAMPLE
-        Get-InstalledApplication -Name '7-Zip'
-    .EXAMPLE
-        Get-InstalledApplication -ProductCode '{23170F69-40C1-2702-1604-000001000000}'
-    .EXAMPLE
-        Start-MSI -Action Install -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
-    .EXAMPLE
-        Start-MSI -Action Uninstall -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
-    .EXAMPLE
-        Start-MSI -Action Uninstall -Path '{23170F69-40C1-2702-1604-000001000000}' -Verbose
-    .EXAMPLE
-        Start-EXE -Path 'C:\Path\To\File\7z1604-x64.exe' -Parameters '/S' -Verbose
-    .EXAMPLE
-        Start-MSP -Path 'C:\Path\To\File\Adobe_Acrobat_DC_x64_EN.msp' -Verbose
-    .EXAMPLE
-        Remove-MSIApplication -Name 'Java' -Verbose
-    .EXAMPLE
-        Remove-MSIApplication -Name 'Java' -Verbose -ExcludeFromUninstall (,('DisplayName', 'Java(TM) 6 Update 31', 'RegEx'))
-    .EXAMPLE
-        Start-EXEAsUser -UserName 'Domain\UserName' -Path 'C:\Path\To\File\7zFM.exe' -Wait -Verbose
-    .EXAMPLE
-        Start-EXEAsUser -UserName 'Domain\UserName' -Path 'PowerShell.exe' -Parameters '-Command C:\Path\To\File\Script.ps1'
-    .EXAMPLE
-        Set-ActiveSetup -StubEXEPath "$env:WinDir\regedit.exe" -Arguments "/S `"C:\Path\To\File\HKCURegistryChange.reg`"" -Description 'HKCU Registry Change' -Key 'HKCU_Registry_Change' -Verbose
-    .EXAMPLE
-        Set-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Verbose
-    .EXAMPLE
-        Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String -Verbose
-    .EXAMPLE
-        Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse -Verbose
-    .EXAMPLE
-        Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName' -Verbose
-    .EXAMPLE
-        New-Folder -Path 'C:\Path\To\Folder' -Verbose
-    .EXAMPLE
-        Remove-Folder -Path 'C:\Path\To\Folder' -Verbose
-    .EXAMPLE
-        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt' -Verbose
-    .EXAMPLE
-        Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2' -Verbose
-    .EXAMPLE
-        Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse -Verbose
-    .EXAMPLE
-        Remove-File -Path 'C:\Path\To\File\File01.txt' -Verbose
-    .EXAMPLE
-        Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
-    .EXAMPLE
-        New-Shortcut -Path 'C:\Path\To\File\TestProgram.lnk' -TargetPath "$env:windir\System32\notepad.exe" -IconLocation "$env:windir\system32\notepad.exe" -Description 'Notepad Shortcut'
-    .EXAMPLE
-        Get-FileVersion -File 'C:\Path\To\File\7z1604-x64.exe'
-    .EXAMPLE
-        Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi'
-    .EXAMPLE
-        Get-FreeDiskSpace -Drive 'C:'
-    .EXAMPLE
-        Get-MSIErrorCodeMessage -MSIErrorCode 1618
-    .EXAMPLE
-        Get-LoggedOnUser
-    .EXAMPLE
-        Get-UserProfiles
-    .EXAMPLE
-        Update-Desktop
-    .EXAMPLE
-        Update-GroupPolicy
-    .EXAMPLE
-        Get-PowerSupply
-    .EXAMPLE
-        (Get-PowerSupply).IsLaptop
-    .EXAMPLE
-        Get-PendingReboot
-    .EXAMPLE
-        (Get-PendingReboot).LastBootUpTime
-    .EXAMPLE
-        Block-AppExecution -ProcessName 'excel','winword' -Verbose
-    .EXAMPLE
-        Unblock-AppExecution -Verbose
+.SYNOPSIS
+    The Application Management module enables a set of functions to perform common application deployment tasks
+.DESCRIPTION
+    The Application Management module enables a set of functions to perform common application deployment tasks including :
+    - Extensive verbose logging of both the functions and any MSI installation / uninstallation
+    - The ability to execute any type of setup (MSI or EXEs) and handle / translate the return codes
+    - Mass remove MSI applications with a partial match (e.g. remove all versions of all MSI applications which match "Java").
+    - Check for in-progress MSI installations and wait for the MSI Mutex to become available
+    - Update Group Policy
+    - Copy / Delete Files
+    - Get / Set / Remove Registry Keys and Values
+    - Check File versions
+    - Create Start Menu Shortcuts
+    - Register / Unregister DLL files
+    - Refresh desktop icons
+    - Test power connectivity
+.EXAMPLE
+    Get-InstalledApplication -Name '7-Zip'
+.EXAMPLE
+    Get-InstalledApplication -ProductCode '{23170F69-40C1-2702-1604-000001000000}'
+.EXAMPLE
+    Start-MSI -Action Install -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
+.EXAMPLE
+    Start-MSI -Action Uninstall -Path 'C:\Path\To\File\7z1604-x64.msi' -Verbose
+.EXAMPLE
+    Start-MSI -Action Uninstall -Path '{23170F69-40C1-2702-1604-000001000000}' -Verbose
+.EXAMPLE
+    Start-EXE -Path 'C:\Path\To\File\7z1604-x64.exe' -Parameters '/S' -Verbose
+.EXAMPLE
+    Start-MSP -Path 'C:\Path\To\File\Adobe_Acrobat_DC_x64_EN.msp' -Verbose
+.EXAMPLE
+    Remove-MSI -Name 'Java' -Verbose
+.EXAMPLE
+    Remove-MSI -Name 'Java' -Verbose -ExcludeFromUninstall (,('DisplayName', 'Java(TM) 6 Update 31', 'RegEx'))
+.EXAMPLE
+    Start-EXEAsUser -UserName 'Domain\UserName' -Path 'C:\Path\To\File\7zFM.exe' -Wait -Verbose
+.EXAMPLE
+    Start-EXEAsUser -UserName 'Domain\UserName' -Path 'PowerShell.exe' -Parameters '-Command C:\Path\To\File\Script.ps1'
+.EXAMPLE
+    Set-ActiveSetup -StubEXEPath "$env:WinDir\regedit.exe" -Arguments "/S `"C:\Path\To\File\HKCURegistryChange.reg`"" -Description 'HKCU Registry Change' -Key 'HKCU_Registry_Change' -Verbose
+.EXAMPLE
+    Set-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Verbose
+.EXAMPLE
+    Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String -Verbose
+.EXAMPLE
+    Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse -Verbose
+.EXAMPLE
+    Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName' -Verbose
+.EXAMPLE
+    New-Folder -Path 'C:\Path\To\Folder' -Verbose
+.EXAMPLE
+    Remove-Folder -Path 'C:\Path\To\Folder' -Verbose
+.EXAMPLE
+    Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt' -Verbose
+.EXAMPLE
+    Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2' -Verbose
+.EXAMPLE
+    Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse -Verbose
+.EXAMPLE
+    Remove-File -Path 'C:\Path\To\File\File01.txt' -Verbose
+.EXAMPLE
+    Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
+.EXAMPLE
+    New-Shortcut -Path 'C:\Path\To\File\TestProgram.lnk' -TargetPath "$env:windir\System32\notepad.exe" -IconLocation "$env:windir\system32\notepad.exe" -Description 'Notepad Shortcut'
+.EXAMPLE
+    Get-FileVersion -File 'C:\Path\To\File\7z1604-x64.exe'
+.EXAMPLE
+    Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi'
+.EXAMPLE
+    Get-FreeDiskSpace -Drive 'C:'
+.EXAMPLE
+    Get-MSIErrorCodeMessage -MSIErrorCode 1618
+.EXAMPLE
+    Get-LoggedOnUser
+.EXAMPLE
+    Get-UserProfiles
+.EXAMPLE
+    Update-Desktop
+.EXAMPLE
+    Update-GroupPolicy
+.EXAMPLE
+    Get-PowerSupply
+.EXAMPLE
+    (Get-PowerSupply).IsLaptop
+.EXAMPLE
+    Get-PendingReboot
+.EXAMPLE
+    (Get-PendingReboot).LastBootUpTime
+.EXAMPLE
+    Block-AppExecution -ProcessName 'excel','winword' -Verbose
+.EXAMPLE
+    Unblock-AppExecution -Verbose
 #>
 #Requires -Version 4.0
 #Requires -RunAsAdministrator
@@ -116,7 +116,7 @@ Function Get-InstalledApplication {
         InstallSource      : C:\Installers\
         UninstallString    : MsiExec.exe /I{23170F69-40C1-2702-1604-000001000000}
         UninstallSubkey    : {23170F69-40C1-2702-1604-000001000000}
-        InstallLocation    : 
+        InstallLocation    :
         ProductCode        : {23170F69-40C1-2702-1604-000001000000}
         Is64BitApplication : True
         Publisher          : Igor Pavlov
@@ -307,6 +307,8 @@ Function Start-MSI {
     .EXAMPLE
         Start-MSI -Action Patch -Path 'Adobe_Acrobat_DC_x64_EN.msp'
         Installs an MSP
+    .LINK
+        Remove-MSI
     #>
 
     [CmdletBinding()]
@@ -515,6 +517,8 @@ Function Start-MSP {
         Continue if an exit code is returned by msiexec that is not recognized. Default is: $true
     .EXAMPLE
         Start-MSP -Path 'C:\Path\To\File\Adobe_Acrobat_DC_x64_EN.msp'
+    .LINK
+        Start-MSI
     #>
 
     [CmdletBinding()]
@@ -819,7 +823,7 @@ Function Start-EXE {
 }
 
 
-Function Remove-MSIApplication {
+Function Remove-MSI {
     <#
     .SYNOPSIS
         Removes all MSI applications matching the specified application name
@@ -843,24 +847,24 @@ Function Remove-MSIApplication {
     .PARAMETER ContinueOnError
         Continue if an exit code is returned by msiexec that is not recognized. Default is: $true
     .EXAMPLE
-        Remove-MSIApplication -Name 'Adobe Flash'
+        Remove-MSI -Name 'Adobe Flash'
         Removes all versions of software that match the name "Adobe Flash"
     .EXAMPLE
-        Remove-MSIApplication -Name 'Adobe'
+        Remove-MSI -Name 'Adobe'
         Removes all versions of software that match the name "Adobe"
     .EXAMPLE
-        Remove-MSIApplications -Name 'Java 8' -FilterApplication ('Is64BitApplication', $false, 'Exact'),('Publisher', 'Oracle Corporation', 'Exact')
+        Remove-MSI -Name 'Java 8' -FilterApplication ('Is64BitApplication', $false, 'Exact'),('Publisher', 'Oracle Corporation', 'Exact')
         Removes all versions of software that match the name "Java 8" where the software is 32-bits and the publisher is "Oracle Corporation"
     .EXAMPLE
-        Remove-MSIApplications -Name 'Java 8' -FilterApplication (,('Publisher', 'Oracle Corporation', 'Exact')) -ExcludeFromUninstall (,('DisplayName', 'Java 8 Update 45', 'RegEx'))
+        Remove-MSI -Name 'Java 8' -FilterApplication (,('Publisher', 'Oracle Corporation', 'Exact')) -ExcludeFromUninstall (,('DisplayName', 'Java 8 Update 45', 'RegEx'))
         Removes all versions of software that match the name "Java 8" and also have "Oracle Corporation" as the Publisher; however, it will not uninstall "Java 8 Update 45"
         NOTE: if only specifying a single row in the two-dimensional arrays, the array must have the extra parentheses and leading comma as per the example
     .EXAMPLE
-        Remove-MSIApplications -Name 'Java 8' -ExcludeFromUninstall (,('DisplayName', 'Java 8 Update 45', 'RegEx'))
+        Remove-MSI -Name 'Java 8' -ExcludeFromUninstall (,('DisplayName', 'Java 8 Update 45', 'RegEx'))
         Removes all versions of software that match the name "Java 8"; however, it does not uninstall "Java 8 Update 45" of the software.
         NOTE: if only specifying a single row in the two-dimensional array, the array must have the extra parentheses and leading comma as in this example
     .EXAMPLE
-        Remove-MSIApplications -Name 'Java 8 Update' -ExcludeFromUninstall
+        Remove-MSI -Name 'Java 8 Update' -ExcludeFromUninstall
             ('Is64BitApplication', $true, 'Exact'),
             ('DisplayName', 'Java 8 Update 45', 'Exact'),
             ('DisplayName', 'Java 8 Update 4*', 'WildCard'),
@@ -868,6 +872,8 @@ Function Remove-MSIApplication {
         Removes all versions of software that match the name "Java 8 Update"; however, it does not uninstall 64-bit versions of the software, Update 45 of the software, or any Update that starts with 4.
     .NOTES
         Information on -FilterApplication or -ExcludeFromUninstall parameters: http://blogs.msdn.com/b/powershell/archive/2007/01/23/array-literals-in-powershell.aspx
+    .LINK
+        Start-MSI
     #>
 
     [CmdletBinding()]
@@ -1474,7 +1480,7 @@ Function Get-MsiTableProperty {
         WixUI_VerifyRepairDlg_Back           : MaintenanceTypeDlg
         ErrorDialog                          : ErrorDlg
         SecureCustomProperties               : OLDERVERSIONBEINGUPGRADED
-        
+
         Retrieve all of the properties from the default 'Property' table
     .EXAMPLE
         Get-MsiTableProperty -Path 'C:\Path\To\File\7z1604-x64.msi' -TransformPath 'C:\Path\To\File\7z1604-x64.mst'
@@ -1614,7 +1620,7 @@ Function Get-FreeDiskSpace {
     .EXAMPLE
         Get-FreeDiskSpace -Drive 'C:'
         223335
-        
+
         Retrieves the remaining disk space on drive 'C:' in MB
     #>
 
@@ -1667,9 +1673,9 @@ Function Get-MSIErrorCodeMessage {
         MSI error code
     .EXAMPLE
         Get-MSIErrorCodeMessage -MSIErrorCode 1618
-        
+
         Another program is being installed. Please wait until that installation is complete, and then try installing this software again.
-        
+
         Retrieves the description string for MSI error code 1618
     #>
 
@@ -2701,6 +2707,8 @@ Function Start-EXEAsUser {
     .EXAMPLE
         Start-EXEAsUser -Path "$PSHOME\powershell.exe" -Parameters "-Command & { & `"C:\TestScript.ps1`"; Exit `$LastExitCode }" -Wait
         Execute process under a user account by using the default active logged in user that was detected when the function was launched
+    .LINK
+        Start-EXE
     #>
 
     [CmdletBinding()]
@@ -3432,6 +3440,8 @@ Function Block-AppExecution {
         Block-AppExecution -ProcessName 'winword'
     .EXAMPLE
         Block-AppExecution -ProcessName 'excel','winword'
+    .LINK
+        Unblock-AppExecution
     #>
 
     [CmdletBinding()]
@@ -3572,6 +3582,8 @@ Function Unblock-AppExecution {
         Unblocks the execution of applications performed by the Block-AppExecution function
     .EXAMPLE
         Unblock-AppExecution
+    .LINK
+        Block-AppExecution
     #>
 
     [CmdletBinding()]
@@ -3724,6 +3736,10 @@ Function Set-RegistryKey {
         Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String
     .EXAMPLE
         Set-RegistryKey -Key 'HKLM:SOFTWARE\Test'
+    .LINK
+        Remove-RegistryKey
+    .LINK
+        Invoke-HKCURegistrySettingsForAllUsers
     #>
 
     [CmdletBinding()]
@@ -3834,6 +3850,10 @@ Function Remove-RegistryKey {
         Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse
     .EXAMPLE
         Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName'
+    .LINK
+        Set-RegistryKey
+    .LINK
+        Invoke-HKCURegistrySettingsForAllUsers
     #>
 
     [CmdletBinding()]
@@ -3952,6 +3972,10 @@ Function Invoke-HKCURegistrySettingsForAllUsers {
             Remove-RegistryKey -Key 'HKCU\SOFTWARE\Test' -Name 'TestNameTwo' -SID $UserProfile.SID
         }
         Invoke-HKCURegistrySettingsForAllUsers -RegistrySettings $HKCURegistrySettings
+    .LINK
+        Set-RegistryKey
+    .LINK
+        Remove-RegistryKey
     #>
 
     [CmdletBinding()]
@@ -4054,6 +4078,8 @@ Function New-Folder {
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
         New-Folder -Path 'C:\Path\To\Folder'
+    .LINK
+        Remove-Folder
     #>
 
     [CmdletBinding()]
@@ -4108,6 +4134,8 @@ Function Remove-Folder {
         Continue if an error is encountered. Default is: $true
     .EXAMPLE
         Remove-Folder -Path 'C:\Path\To\Folder'
+    .LINK
+        New-Folder
     #>
 
     [CmdletBinding()]
@@ -4170,6 +4198,8 @@ Function Copy-File {
     .EXAMPLE
         Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse
         Copy all files and folders to a destination folder
+    .LINK
+        Remove-File
     #>
 
     [CmdletBinding()]
@@ -4245,6 +4275,8 @@ Function Remove-File {
     .EXAMPLE
         Remove-File -LiteralPath 'C:\Path\To\File' -Recurse
         Remove the folder and all contents
+    .LINK
+        Copy-File
     #>
 
     [CmdletBinding()]
