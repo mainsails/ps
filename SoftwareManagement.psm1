@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-    The Application Management module enables a set of functions to perform common application deployment tasks
+    The Software Management module enables a set of functions to perform common application deployment tasks
 .DESCRIPTION
-    The Application Management module enables a set of functions to perform common application deployment tasks including :
+    The Software Management module enables a set of functions to perform common application deployment tasks including :
     - Extensive verbose logging of both the functions and any MSI installation / uninstallation
     - The ability to execute any type of setup (MSI or EXEs) and handle / translate the return codes
     - Mass remove MSI applications with a partial match (e.g. remove all versions of all MSI applications which match "Java").
