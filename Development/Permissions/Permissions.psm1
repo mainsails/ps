@@ -66,28 +66,30 @@
     
     Invoke-Command -ScriptBlock {
         Get-Item -Path $Path -Force |
-            ForEach-Object { 
-                If ($_.PSProvider.Name -eq 'Certificate') {
-                    If ($_.HasPrivateKey -and $_.PrivateKey) {
-                        $_.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
-                    }
+        ForEach-Object { 
+            If ($_.PSProvider.Name -eq 'Certificate') {
+                If ($_.HasPrivateKey -and $_.PrivateKey) {
+                    $_.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
                 }
-                Else {
-                    $_.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
-                }   
             }
-    } | Select-Object -ExpandProperty Access |
-            Where-Object { 
-                If ($Inherited) {
-                    return $true 
-                }   
-                return (-not $_.IsInherited)
-            } | Where-Object {
-                    If ($Identity) {
-                        return ($_.IdentityReference.Value -eq $Identity)
-                    }
-                    return $true
-                }    
+            Else {
+                $_.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
+            }   
+        }
+    } |
+    Select-Object -ExpandProperty Access |
+    Where-Object { 
+        If ($Inherited) {
+            return $true 
+        }   
+        return (-not $_.IsInherited)
+    } |
+    Where-Object {
+        If ($Identity) {
+            return ($_.IdentityReference.Value -eq $Identity)
+        }
+        return $true
+    }    
 }
 
 
@@ -366,60 +368,61 @@ Function Grant-Permission {
     
     If ($ProviderName -eq 'CryptoKey') {
         Get-Item -Path $Path |
-            ForEach-Object {
-                [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate = $_
+        ForEach-Object {
+            [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate = $_
 
-                If (-not $Certificate.HasPrivateKey) {
-                    Write-Warning ('Certificate {0} ({1}; {2}) does not have a private key.' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
-                    return
-                }
+            If (-not $Certificate.HasPrivateKey) {
+                Write-Warning ('Certificate {0} ({1}; {2}) does not have a private key.' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
+                return
+            }
 
-                If (-not $Certificate.PrivateKey) {
-                    Write-Error ('Access is denied to private key of certificate {0} ({1}; {2}).' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
-                    return
-                }
+            If (-not $Certificate.PrivateKey) {
+                Write-Error ('Access is denied to private key of certificate {0} ({1}; {2}).' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
+                return
+            }
 
-                [Security.AccessControl.CryptoKeySecurity]$KeySecurity = $Certificate.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
-                If (-not $KeySecurity) {
-                    Write-Error ('Private key ACL not found for certificate {0} ({1}; {2}).' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
-                    return
-                }
+            [Security.AccessControl.CryptoKeySecurity]$KeySecurity = $Certificate.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
+            If (-not $KeySecurity) {
+                Write-Error ('Private key ACL not found for certificate {0} ({1}; {2}).' -f $Certificate.Thumbprint,$Certificate.Subject,$Path)
+                return
+            }
 
-                $RulesToRemove = @()
-                If ($Clear) {
-                    $RulesToRemove = $KeySecurity.Access | 
-                                        Where-Object { $_.IdentityReference.Value -ne $Identity } |
-                                        # Don't remove Administrators access 
-                                        Where-Object { $_.IdentityReference.Value -ne 'BUILTIN\Administrators' }
-                    If ($RulesToRemove) {
-                        $RulesToRemove | ForEach-Object { 
-                            Write-Verbose ('[{0} {1}] [{1}]  {2} -> ' -f $Certificate.IssuedTo,$Path,$_.IdentityReference,$_.CryptoKeyRights)
-                            If (-not $KeySecurity.RemoveAccessRule($_)) {
-                                Write-Error ('Failed to remove {0}''s {1} permissions on ''{2}'' (3) certificate''s private key.' -f $_.IdentityReference,$_.CryptoKeyRights,$Certificate.Subject,$Certificate.Thumbprint)
-                            }
+            $RulesToRemove = @()
+            If ($Clear) {
+                $RulesToRemove = $KeySecurity.Access | 
+                                 Where-Object { $_.IdentityReference.Value -ne $Identity } |
+                                 # Don't remove Administrators access 
+                                 Where-Object { $_.IdentityReference.Value -ne 'BUILTIN\Administrators' }
+                If ($RulesToRemove) {
+                    $RulesToRemove |
+                    ForEach-Object { 
+                        Write-Verbose ('[{0} {1}] [{1}]  {2} -> ' -f $Certificate.IssuedTo,$Path,$_.IdentityReference,$_.CryptoKeyRights)
+                        If (-not $KeySecurity.RemoveAccessRule($_)) {
+                            Write-Error ('Failed to remove {0}''s {1} permissions on ''{2}'' (3) certificate''s private key.' -f $_.IdentityReference,$_.CryptoKeyRights,$Certificate.Subject,$Certificate.Thumbprint)
                         }
                     }
                 }
-                
-                $CertPath = Join-Path -Path 'cert:' -ChildPath (Split-Path -NoQualifier -Path $Certificate.PSPath)
-
-                $AccessRule = New-Object 'Security.AccessControl.CryptoKeyAccessRule' ($Identity,$Rights,$Type) |
-                                  Add-Member -MemberType NoteProperty -Name 'Path' -Value $CertPath -PassThru
-
-                If ($Force -or $RulesToRemove -or -not (Test-Permission -Path $CertPath -Identity $Identity -Permission $Permission -Exact)) {
-                    $CurrentPerm = Get-Permission -Path $CertPath -Identity $Identity
-                    If ($CurrentPerm) {
-                        $CurrentPerm = $CurrentPerm."$($ProviderName)Rights"
-                    }
-                    Write-Verbose -Message ('[{0} {1}] [{2}]  {3} -> {4}' -f $Certificate.IssuedTo,$CertPath,$AccessRule.IdentityReference,$CurrentPerm,$AccessRule.CryptoKeyRights)
-                    $KeySecurity.SetAccessRule($AccessRule)
-                    Set-CryptoKeySecurity -Certificate $Certificate -CryptoKeySecurity $KeySecurity -Action ('grant {0} {1} permission(s)' -f $Identity,($Permission -join ','))
-                }
-
-                If ($PassThru) {
-                    return $AccessRule
-                }
             }
+            
+            $CertPath = Join-Path -Path 'cert:' -ChildPath (Split-Path -NoQualifier -Path $Certificate.PSPath)
+
+            $AccessRule = New-Object 'Security.AccessControl.CryptoKeyAccessRule' ($Identity,$Rights,$Type) |
+                          Add-Member -MemberType NoteProperty -Name 'Path' -Value $CertPath -PassThru
+
+            If ($Force -or $RulesToRemove -or -not (Test-Permission -Path $CertPath -Identity $Identity -Permission $Permission -Exact)) {
+                $CurrentPerm = Get-Permission -Path $CertPath -Identity $Identity
+                If ($CurrentPerm) {
+                    $CurrentPerm = $CurrentPerm."$($ProviderName)Rights"
+                }
+                Write-Verbose -Message ('[{0} {1}] [{2}]  {3} -> {4}' -f $Certificate.IssuedTo,$CertPath,$AccessRule.IdentityReference,$CurrentPerm,$AccessRule.CryptoKeyRights)
+                $KeySecurity.SetAccessRule($AccessRule)
+                Set-CryptoKeySecurity -Certificate $Certificate -CryptoKeySecurity $KeySecurity -Action ('grant {0} {1} permission(s)' -f $Identity,($Permission -join ','))
+            }
+
+            If ($PassThru) {
+                return $AccessRule
+            }
+        }
     }
     Else {
         # We don't use Get-Acl because it returns the whole security descriptor, which includes owner information
@@ -445,8 +448,8 @@ Function Grant-Permission {
         $Identity = Resolve-Identity -Name $Identity
         If ($Clear) {
             $RulesToRemove = $CurrentAcl.Access |
-                                Where-Object { $_.IdentityReference.Value -ne $Identity } |
-                                Where-Object { -not $_.IsInherited }
+                             Where-Object { $_.IdentityReference.Value -ne $Identity } |
+                             Where-Object { -not $_.IsInherited }
         
             If ($RulesToRemove) {
                 ForEach ($RuleToRemove in $RulesToRemove) {
@@ -457,7 +460,7 @@ Function Grant-Permission {
         }
 
         $AccessRule = New-Object "Security.AccessControl.$($ProviderName)AccessRule" $Identity,$Rights,$InheritanceFlags,$PropagationFlags,$Type |
-                          Add-Member -MemberType NoteProperty -Name 'Path' -Value $Path -PassThru
+                      Add-Member -MemberType NoteProperty -Name 'Path' -Value $Path -PassThru
 
         $MissingPermission = -not (Test-Permission -Path $Path -Identity $Identity -Permission $Permission @testPermissionParams -Exact)
 
@@ -537,38 +540,29 @@ Function Revoke-Permission {
     $RulesToRemove = Get-Permission -Path $Path -Identity $Identity
     If ($RulesToRemove) {
         $Identity = Resolve-IdentityName -Name $Identity
-        $RulesToRemove |
-            ForEach-Object {
-                Write-Verbose ('[{0}] [{1}]  {2} -> ' -f $Path,$Identity,$_."$($ProviderName)Rights")
+        $RulesToRemove | ForEach-Object { Write-Verbose ('[{0}] [{1}]  {2} -> ' -f $Path,$Identity,$_."$($ProviderName)Rights") }
+        
+        Get-Item $Path -Force |
+        ForEach-Object {
+            If ($_.PSProvider.Name -eq 'Certificate') {
+                [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate = $_
+                [Security.AccessControl.CryptoKeySecurity]$KeySecurity = $Certificate.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
+
+                $RulesToRemove | ForEach-Object { [void]$KeySecurity.RemoveAccessRule($_) }
+                Set-CryptoKeySecurity -Certificate $Certificate -CryptoKeySecurity $KeySecurity -Action ('revoke {0}''s permissions' -f $Identity)
             }
-
-            Get-Item $Path -Force |
-                ForEach-Object {
-                    If ($_.PSProvider.Name -eq 'Certificate') {
-                        [Security.Cryptography.X509Certificates.X509Certificate2]$Certificate = $_
-                        [Security.AccessControl.CryptoKeySecurity]$KeySecurity = $Certificate.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
-
-                        $RulesToRemove |
-                            ForEach-Object {
-                                [void]$KeySecurity.RemoveAccessRule($_)
-                            }
-
-                        Set-CryptoKeySecurity -Certificate $Certificate -CryptoKeySecurity $KeySecurity -Action ('revoke {0}''s permissions' -f $Identity)
-                    }
-                    Else {
-                        # We don't use Get-Acl because it returns the whole security descriptor, which includes owner information.
-                        # When passed to Set-Acl, this causes intermittent errors.  So, we just grab the ACL portion of the security descriptor.
-                        # See http://www.bilalaslam.com/2010/12/14/powershell-workaround-for-the-security-identifier-is-not-allowed-to-be-the-owner-of-this-object-with-set-acl/
-                        $CurrentAcl = $_.GetAccessControl('Access')
-                        $RulesToRemove | ForEach-Object { [void]$CurrentAcl.RemoveAccessRule($_) }
-                        If ($PSCmdlet.ShouldProcess($Path, ('revoke {0}''s permissions' -f $Identity))) {
-                            Set-Acl -Path $Path -AclObject $CurrentAcl
-                        }
-                    }
+            Else {
+                # We don't use Get-Acl because it returns the whole security descriptor, which includes owner information.
+                # When passed to Set-Acl, this causes intermittent errors.  So, we just grab the ACL portion of the security descriptor.
+                # See http://www.bilalaslam.com/2010/12/14/powershell-workaround-for-the-security-identifier-is-not-allowed-to-be-the-owner-of-this-object-with-set-acl/
+                $CurrentAcl = $_.GetAccessControl('Access')
+                $RulesToRemove | ForEach-Object { [void]$CurrentAcl.RemoveAccessRule($_) }
+                If ($PSCmdlet.ShouldProcess($Path, ('revoke {0}''s permissions' -f $Identity))) {
+                    Set-Acl -Path $Path -AclObject $CurrentAcl
                 }
-
+            }
+        }
     }
-    
 }
 
 
@@ -701,28 +695,28 @@ Function Test-Permission {
     }
 
     $ACL = Get-Permission -Path $Path -Identity $Identity -Inherited:$Inherited | 
-                Where-Object { $_.AccessControlType -eq 'Allow' } |
-                Where-Object { $_.IsInherited -eq $Inherited } |
-                Where-Object { 
-                    If ($Exact) {
-                        return ($_.$RightsPropertyName -eq $Rights)
-                    }
-                    Else {
-                        return ($_.$RightsPropertyName -band $Rights) -eq $Rights
-                    }
-                } |
-                Where-Object {
-                    If (-not $TestApplyTo) {
-                        return $true
-                    }
+           Where-Object { $_.AccessControlType -eq 'Allow' } |
+           Where-Object { $_.IsInherited -eq $Inherited } |
+           Where-Object { 
+               If ($Exact) {
+                   return ($_.$RightsPropertyName -eq $Rights)
+               }
+               Else {
+                   return ($_.$RightsPropertyName -band $Rights) -eq $Rights
+               }
+           } |
+           Where-Object {
+               If (-not $TestApplyTo) {
+                   return $true
+               }
 
-                    If ($Exact) {
-                        return ($_.InheritanceFlags -eq $InheritanceFlags) -and ($_.PropagationFlags -eq $PropagationFlags)
-                    }
-                    Else {
-                        return (($_.InheritanceFlags -band $InheritanceFlags) -eq $InheritanceFlags) -and (($_.PropagationFlags -and $PropagationFlags) -eq $PropagationFlags)
-                    }
-                }
+               If ($Exact) {
+                   return ($_.InheritanceFlags -eq $InheritanceFlags) -and ($_.PropagationFlags -eq $PropagationFlags)
+               }
+               Else {
+                   return (($_.InheritanceFlags -band $InheritanceFlags) -eq $InheritanceFlags) -and (($_.PropagationFlags -and $PropagationFlags) -eq $PropagationFlags)
+               }
+           }
     If ($ACL) {
         return $true
     }
@@ -989,19 +983,19 @@ Function ConvertTo-PropagationFlag {
 
     $Flags = [Security.AccessControl.PropagationFlags]
     $Map = @{
-        'Container' =                                  $Flags::None;
-        'SubContainers' =                              $Flags::InheritOnly;
-        'Leaves' =                                     $Flags::InheritOnly;
-        'ChildContainers' =                           ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
-        'ChildLeaves' =                               ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
-        'ContainerAndSubContainers' =                  $Flags::None;
-        'ContainerAndLeaves' =                         $Flags::None;
-        'SubContainersAndLeaves' =                     $Flags::InheritOnly;
-        'ContainerAndChildContainers' =                $Flags::NoPropagateInherit;
-        'ContainerAndChildLeaves' =                    $Flags::NoPropagateInherit;
+        'Container'                                 =  $Flags::None;
+        'SubContainers'                             =  $Flags::InheritOnly;
+        'Leaves'                                    =  $Flags::InheritOnly;
+        'ChildContainers'                           = ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
+        'ChildLeaves'                               = ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
+        'ContainerAndSubContainers'                 =  $Flags::None;
+        'ContainerAndLeaves'                        =  $Flags::None;
+        'SubContainersAndLeaves'                    =  $Flags::InheritOnly;
+        'ContainerAndChildContainers'               =  $Flags::NoPropagateInherit;
+        'ContainerAndChildLeaves'                   =  $Flags::NoPropagateInherit;
         'ContainerAndChildContainersAndChildLeaves' =  $Flags::NoPropagateInherit;
-        'ContainerAndSubContainersAndLeaves' =         $Flags::None;
-        'ChildContainersAndChildLeaves' =             ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
+        'ContainerAndSubContainersAndLeaves'        =  $Flags::None;
+        'ChildContainersAndChildLeaves'             = ($Flags::InheritOnly -bor $Flags::NoPropagateInherit);
     }
     $Key = $ContainerInheritanceFlag.ToString()
     If ($Map.ContainsKey($Key)) {
@@ -1255,5 +1249,4 @@ Function Resolve-IdentityName {
             return $SID.ToString()
         }
     }
-    
 }
