@@ -1014,18 +1014,18 @@ Function ConvertTo-SecurityIdentifier {
         'ConvertTo-SecurityIdentifier' converts a SID in SDDL form (as a string), in binary form (as a byte array) into a 'System.Security.Principal.SecurityIdentifier' object
         It also accepts 'System.Security.Principal.SecurityIdentifier' objects, and returns them back to you
         If the string or byte array don't represent a SID, an error is written and nothing is returned
-    .PARAMETER
+    .PARAMETER SID
         The SID to convert to a 'System.Security.Principal.SecurityIdentifier'
         Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object or a SID in binary form as an array of bytes
     .EXAMPLE
-        Resolve-Identity -SID 'S-1-5-21-2678556459-1010642102-471947008-1017'
-        Demonstrates how to convert a a SID in SDDL into a 'System.Security.Principal.SecurityIdentifier' object
+        ConvertTo-SecurityIdentifier -SID 'S-1-5-32-544'
+        Demonstrates how to convert a SID in SDDL form into a 'System.Security.Principal.SecurityIdentifier' object
     .EXAMPLE
-        Resolve-Identity -SID (New-Object 'Security.Principal.SecurityIdentifier' 'S-1-5-21-2678556459-1010642102-471947008-1017')
+        ConvertTo-SecurityIdentifier -SID (New-Object 'Security.Principal.SecurityIdentifier' 'S-1-5-32-544')
         Demonstrates that you can pass a 'SecurityIdentifier' object as the value of the SID parameter
         The SID you passed in will be returned to you unchanged
     .EXAMPLE
-        Resolve-Identity -SID $SIDBytes
+        ConvertTo-SecurityIdentifier -SID $SIDBytes
         Demonstrates that you can use a byte array that represents a SID as the value of the 'SID' parameter.   
     .LINK
         Resolve-Identity
@@ -1179,15 +1179,16 @@ Function Resolve-Identity {
     .PARAMETER Name
         The name of the identity to return
     .PARAMETER SID
-        The SID of the identity to return. Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object, or a SID in binary form as an array of bytes
+        The SID of the identity to return
+        Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object, or a SID in binary form as an array of bytes
     .EXAMPLE
         Resolve-Identity -Name 'Administrators'
         Returns an object representing the `Administrators` group
     .EXAMPLE
-        Resolve-Identity -SID 'S-1-5-21-2678556459-1010642102-471947008-1017'
+        Resolve-Identity -SID 'S-1-5-32-544'
         Demonstrates how to use a SID in SDDL form to convert a SID into an identity
     .EXAMPLE
-        Resolve-Identity -SID (New-Object 'Security.Principal.SecurityIdentifier' 'S-1-5-21-2678556459-1010642102-471947008-1017')
+        Resolve-Identity -SID (New-Object 'Security.Principal.SecurityIdentifier' 'S-1-5-32-544')
         Demonstrates that you can pass a 'SecurityIdentifier' object as the value of the SID parameter
     .EXAMPLE
         Resolve-Identity -SID $SIDBytes
