@@ -738,10 +738,10 @@ Function Set-CryptoKeySecurity {
    )
 
 
-    $keyContainerInfo = $Certificate.PrivateKey.CspKeyContainerInfo
-    $CspParams = New-Object 'Security.Cryptography.CspParameters' ($keyContainerInfo.ProviderType, $keyContainerInfo.ProviderName, $keyContainerInfo.KeyContainerName)
+    $KeyContainerInfo = $Certificate.PrivateKey.CspKeyContainerInfo
+    $CspParams = New-Object 'Security.Cryptography.CspParameters' ($KeyContainerInfo.ProviderType, $KeyContainerInfo.ProviderName, $KeyContainerInfo.KeyContainerName)
     $CspParams.Flags = [Security.Cryptography.CspProviderFlags]::UseExistingKey
-    $CspParams.KeyNumber = $keyContainerInfo.KeyNumber
+    $CspParams.KeyNumber = $KeyContainerInfo.KeyNumber
     If ((Split-Path -NoQualifier -Path $Certificate.PSPath) -like 'LocalMachine\*') {
         $CspParams.Flags = $CspParams.Flags -bor [Security.Cryptography.CspProviderFlags]::UseMachineKeyStore
     }
@@ -1006,6 +1006,61 @@ Function ConvertTo-PropagationFlag {
 }
 
 
+Function ConvertTo-SecurityIdentifier {
+    <#
+    .SYNOPSIS
+        Converts a string or byte array security identifier into a 'System.Security.Principal.SecurityIdentifier' object
+    .DESCRIPTION
+        'ConvertTo-SecurityIdentifier' converts a SID in SDDL form (as a string), in binary form (as a byte array) into a 'System.Security.Principal.SecurityIdentifier' object
+        It also accepts 'System.Security.Principal.SecurityIdentifier' objects, and returns them back to you
+        If the string or byte array don't represent a SID, an error is written and nothing is returned
+    .PARAMETER
+        The SID to convert to a 'System.Security.Principal.SecurityIdentifier'
+        Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object or a SID in binary form as an array of bytes
+    .EXAMPLE
+        Resolve-Identity -SID 'S-1-5-21-2678556459-1010642102-471947008-1017'
+        Demonstrates how to convert a a SID in SDDL into a 'System.Security.Principal.SecurityIdentifier' object
+    .EXAMPLE
+        Resolve-Identity -SID (New-Object 'Security.Principal.SecurityIdentifier' 'S-1-5-21-2678556459-1010642102-471947008-1017')
+        Demonstrates that you can pass a 'SecurityIdentifier' object as the value of the SID parameter
+        The SID you passed in will be returned to you unchanged
+    .EXAMPLE
+        Resolve-Identity -SID $SIDBytes
+        Demonstrates that you can use a byte array that represents a SID as the value of the 'SID' parameter.   
+    .LINK
+        Resolve-Identity
+    .LINK
+        Resolve-IdentityName
+    #>
+
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        $SID
+    )
+    
+    Try {
+        If ($SID -is [string]) {
+            New-Object 'Security.Principal.SecurityIdentifier' $SID
+        }
+        Elseif ($SID -is [byte[]]) {
+            New-Object 'Security.Principal.SecurityIdentifier' $SID,0
+        }
+        Elseif ($SID -is [Security.Principal.SecurityIdentifier]) {
+            $SID
+        }
+        Else {
+            Write-Error ('Invalid SID. The `SID` parameter accepts a `System.Security.Principal.SecurityIdentifier` object, a SID in SDDL form as a `string`, or a SID in binary form as byte array. You passed a ''{0}''.' -f $SID.GetType())
+            return
+        }
+    }
+    Catch {
+        Write-Error ('Exception converting SID parameter to a `SecurityIdentifier` object. This usually means you passed an invalid SID in SDDL form (as a string) or an invalid SID in binary form (as a byte array): {0}' -f $_.Exception.Message)
+        return
+    }
+}
+
+
 Function Get-PathProvider {
     <#
     .SYNOPSIS
@@ -1050,8 +1105,8 @@ Function Get-PathProvider {
     }
 
     $Drive  |
-        Select-Object -First 1 |
-        Select-Object -ExpandProperty 'Provider'
+    Select-Object -First 1 |
+    Select-Object -ExpandProperty 'Provider'
 
 }
 
@@ -1121,6 +1176,10 @@ Function Resolve-Identity {
         You may pass a 'System.Security.Principal.SecurityIdentifer', a SID in SDDL form (as a string), or a SID in binary form (a byte array) as the value to the 'SID' parameter. You'll get an error and nothing returned if the SDDL or byte array SID are invalid
     
         If the name or security identifier doesn't represent an actual user or group, an error is written and nothing is returned
+    .PARAMETER Name
+        The name of the identity to return
+    .PARAMETER SID
+        The SID of the identity to return. Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object, or a SID in binary form as an array of bytes
     .EXAMPLE
         Resolve-Identity -Name 'Administrators'
         Returns an object representing the `Administrators` group
@@ -1133,10 +1192,6 @@ Function Resolve-Identity {
     .EXAMPLE
         Resolve-Identity -SID $SIDBytes
         Demonstrates that you can use a byte array that represents a SID as the value of the 'SID' parameter
-    .PARAMETER Name
-        The name of the identity to return
-    .PARAMETER SID
-        The SID of the identity to return. Accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object, or a SID in binary form as an array of bytes
     .OUTPUTS
         PSSM.Identity
     .LINK
