@@ -25,7 +25,7 @@
         Returns 'System.Security.AccessControl.FileSystemAccessRule' objects for all the 'Administrators' rules on 'C:\Windows'
     .EXAMPLE
         Get-Permission -Path 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678'
-        Returns 'System.Security.AccessControl.CryptoKeyAccesRule' objects for certificate's 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678' private key/key container. If it doesn't have a private key, '$null' is returned    
+        Returns 'System.Security.AccessControl.CryptoKeyAccesRule' objects for certificate's 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678' private key/key container. If it doesn't have a private key, '$null' is returned
     .OUTPUTS
         System.Security.AccessControl.AccessRule
     .LINK
@@ -63,10 +63,10 @@
         Write-Error ('Path ''{0}'' not found.' -f $Path)
         return
     }
-    
+
     Invoke-Command -ScriptBlock {
         Get-Item -Path $Path -Force |
-        ForEach-Object { 
+        ForEach-Object {
             If ($_.PSProvider.Name -eq 'Certificate') {
                 If ($_.HasPrivateKey -and $_.PrivateKey) {
                     $_.PrivateKey.CspKeyContainerInfo.CryptoKeySecurity
@@ -74,14 +74,14 @@
             }
             Else {
                 $_.GetAccessControl([Security.AccessControl.AccessControlSections]::Access)
-            }   
+            }
         }
     } |
     Select-Object -ExpandProperty Access |
-    Where-Object { 
+    Where-Object {
         If ($Inherited) {
-            return $true 
-        }   
+            return $true
+        }
         return (-not $_.IsInherited)
     } |
     Where-Object {
@@ -89,14 +89,14 @@
             return ($_.IdentityReference.Value -eq $Identity)
         }
         return $true
-    }    
+    }
 }
 
 
 Function Disable-AclInheritance {
     <#
     .SYNOPSIS
-        Protects an ACL so that changes to its parent can't be inherited to it    
+        Protects an ACL so that changes to its parent can't be inherited to it
     .DESCRIPTION
         Items in the registry or file system will inherit permissions from its parent. The 'Disable-AclInheritance' Function disables inheritance, removing all inherited permissions. You can optionally preserve the currently inherited permission as explicit permissions using the '-Preserve' switch
         This Function will only disable inheritance if it is currently enabled
@@ -119,7 +119,7 @@ Function Disable-AclInheritance {
     .LINK
         Revoke-Permission
     #>
-    
+
     [CmdletBinding(SupportsShouldProcess=$true)]
     Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -127,7 +127,7 @@ Function Disable-AclInheritance {
         [string]$Path,
         [switch]$Preserve
    )
-    
+
     $ACL = Get-Acl -Path $Path
     If (-not $ACL.AreAccessRulesProtected) {
         Write-Verbose -Message ("[{0}] Disabling access rule inheritance." -f $Path)
@@ -162,7 +162,7 @@ Function Enable-AclInheritance {
     .LINK
         Revoke-Permission
     #>
-    
+
     [CmdletBinding(SupportsShouldProcess=$true)]
     Param(
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -170,7 +170,7 @@ Function Enable-AclInheritance {
         [string]$Path,
         [switch]$Preserve
    )
-    
+
     $ACL = Get-Acl -Path $Path
     If ($ACL.AreAccessRulesProtected) {
         Write-Verbose -Message ('[{0}] Enabling access rule inheritance.' -f $Path)
@@ -194,31 +194,31 @@ Function Grant-Permission {
           [Enum]::GetValues([Security.AccessControl.FileSystemRights])
           [Enum]::GetValues([Security.AccessControl.RegistryRights])
           [Enum]::GetValues([Security.AccessControl.CryptoKeyRights])
-        Permissions are only granted if they don't exist on an item (inherited permissions are ignored). If you always want to grant permissions, use the 'Force' switch 
+        Permissions are only granted if they don't exist on an item (inherited permissions are ignored). If you always want to grant permissions, use the 'Force' switch
         Use the 'PassThru' switch to get an access rule object back (you'll always get one regardless if the permissions changed or not)
         By default, permissions allowing access are granted. You can grant permissions denying access by passing 'Deny' as the value of the 'Type' parameter
-    
+
         -- Directories and Registry Keys :
-        
+
         When setting permissions on a container (directory/registry key) you can control inheritance and propagation flags using the 'ApplyTo' parameter. This parameter is designed to hide the complexities of Windows' inheritance and propagation flags. There are 13 possible combinations
         Given this tree :
-        
+
               C
              / \
             CC CL
            /  \
           GC  GL
-          
+
         Where :
-        
-          * C is the **C**ontainer permissions are getting set on  
-          * CC is a **C**hild **C**ontainer  
-          * CL is a **C**hild **L**eaf  
-          * GC is a **G**randchild **C**ontainer and includes all sub-containers below it  
-          * GL is a **G**randchild **L**eaf  
-    
+
+          * C is the **C**ontainer permissions are getting set on
+          * CC is a **C**hild **C**ontainer
+          * CL is a **C**hild **L**eaf
+          * GC is a **G**randchild **C**ontainer and includes all sub-containers below it
+          * GL is a **G**randchild **L**eaf
+
         The 'ApplyTo' parameter takes one of the following 13 values and applies permissions to :
-        
+
           * **Container** - The container itself and nothing below it
           * **SubContainers** - All sub-containers under the container, e.g. CC and GC
           * **Leaves** - All leaves under the container, e.g. CL and GL
@@ -232,9 +232,9 @@ Function Grant-Permission {
           * **ContainerAndChildContainersAndChildLeaves** - The container and just its child containers/leaves, e.g. C, CC, and CL
           * **ContainerAndSubContainersAndLeaves** - Everything, full inheritance/propogation, e.g. C, CC, GC, GL.  **This is the default**
           * **ChildContainersAndChildLeaves**  - Just the container's child containers/leaves, e.g. CC and CL
-          
+
         The following table maps 'ContainerInheritanceFlags' values to the actual 'InheritanceFlags' and 'PropagationFlags' values used :
-         
+
           ContainerInheritanceFlags                   InheritanceFlags                 PropagationFlags
           -------------------------                   ----------------                 ----------------
           Container                                   None                             None
@@ -251,10 +251,10 @@ Function Grant-Permission {
           ContainerAndChildContainersAndChildLeaves   ContainerInherit,ObjectInherit   NoPropagateInherit
           ContainerAndSubContainersAndLeaves          ContainerInherit,ObjectInherit   None
           ChildContainersAndChildLeaves               ContainerInherit,ObjectInherit   InheritOnly
-    
+
         The above information was adapated from [Manage Access to Windows Objects with ACLs and the .NET Framework](http://msdn.microsoft.com/en-us/magazine/cc163885.aspx#S3)
         If you prefer to speak in 'InheritanceFlags' or 'PropagationFlags', you can use the 'ConvertTo-ContainerInheritanceFlags' Function to convert your flags into PSSM flags
-    
+
         -- Certificate Private Keys/Key Containers :
         When setting permissions on a certificate's private key/key container, if a certificate doesn't have a private key, it is ignored and no permissions are set. Since certificates are always leaves, the 'ApplyTo' parameter is ignored
         When using the '-Clear' switch, note that the local 'Administrators' account will always remain to avoid not being able to read the key anymore
@@ -291,7 +291,7 @@ Function Grant-Permission {
         Grant-Permission -Identity 'DOMAIN\Engineers' -Permission 'FullControl' -Path 'C:\Test' -Clear
         Grants the 'DOMAIN\Engineers' group full control on 'C:\Test'. Any non-inherited, existing access rules are removed from 'C:\Test'
     .EXAMPLE
-        Grant-Permission -Identity 'DOMAIN\Engineers' -Permission 'FullControl' -Path 'Cert:\LocalMachine\My\1234567890ABCDEF1234567890ABCDEF12345678'    
+        Grant-Permission -Identity 'DOMAIN\Engineers' -Permission 'FullControl' -Path 'Cert:\LocalMachine\My\1234567890ABCDEF1234567890ABCDEF12345678'
         Grants the 'DOMAIN\Engineers' group full control on the `1234567890ABCDEF1234567890ABCDEF12345678` certificate's private key/key container
     .EXAMPLE
         Grant-Permission -Identity 'DOMAIN\Users' -Permission 'FullControl' -Path 'C:\Test' -Type Deny
@@ -320,7 +320,7 @@ Function Grant-Permission {
     .LINK
         http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.cryptokeyrights.aspx
     #>
-    
+
     [CmdletBinding(SupportsShouldProcess=$true)]
     [OutputType([Security.AccessControl.AccessRule])]
     Param(
@@ -365,7 +365,7 @@ Function Grant-Permission {
     }
 
     $Identity = Resolve-IdentityName -Name $Identity
-    
+
     If ($ProviderName -eq 'CryptoKey') {
         Get-Item -Path $Path |
         ForEach-Object {
@@ -389,13 +389,13 @@ Function Grant-Permission {
 
             $RulesToRemove = @()
             If ($Clear) {
-                $RulesToRemove = $KeySecurity.Access | 
+                $RulesToRemove = $KeySecurity.Access |
                                  Where-Object { $_.IdentityReference.Value -ne $Identity } |
-                                 # Don't remove Administrators access 
+                                 # Don't remove Administrators access
                                  Where-Object { $_.IdentityReference.Value -ne 'BUILTIN\Administrators' }
                 If ($RulesToRemove) {
                     $RulesToRemove |
-                    ForEach-Object { 
+                    ForEach-Object {
                         Write-Verbose ('[{0} {1}] [{1}]  {2} -> ' -f $Certificate.IssuedTo,$Path,$_.IdentityReference,$_.CryptoKeyRights)
                         If (-not $KeySecurity.RemoveAccessRule($_)) {
                             Write-Error ('Failed to remove {0}''s {1} permissions on ''{2}'' (3) certificate''s private key.' -f $_.IdentityReference,$_.CryptoKeyRights,$Certificate.Subject,$Certificate.Thumbprint)
@@ -403,7 +403,7 @@ Function Grant-Permission {
                     }
                 }
             }
-            
+
             $CertPath = Join-Path -Path 'cert:' -ChildPath (Split-Path -NoQualifier -Path $Certificate.PSPath)
 
             $AccessRule = New-Object 'Security.AccessControl.CryptoKeyAccessRule' ($Identity,$Rights,$Type) |
@@ -429,7 +429,7 @@ Function Grant-Permission {
         # When passed to Set-Acl, this can cause intermittent errors. So we just grab the ACL portion of the security descriptor
         # See http://www.bilalaslam.com/2010/12/14/powershell-workaround-for-the-security-identifier-is-not-allowed-to-be-the-owner-of-this-object-with-set-acl/
         $CurrentAcl = (Get-Item $Path -Force).GetAccessControl('Access')
-    
+
         $InheritanceFlags = [Security.AccessControl.InheritanceFlags]::None
         $PropagationFlags = [Security.AccessControl.PropagationFlags]::None
         $TestPermissionParams = @{}
@@ -443,14 +443,14 @@ Function Grant-Permission {
                 Write-Warning "Can't apply inheritance/propagation rules to a leaf. Please omit 'ApplyTo' parameter when 'Path' is a leaf"
             }
         }
-    
+
         $RulesToRemove = $null
         $Identity = Resolve-Identity -Name $Identity
         If ($Clear) {
             $RulesToRemove = $CurrentAcl.Access |
                              Where-Object { $_.IdentityReference.Value -ne $Identity } |
                              Where-Object { -not $_.IsInherited }
-        
+
             If ($RulesToRemove) {
                 ForEach ($RuleToRemove in $RulesToRemove) {
                     Write-Verbose ('[{0}] [{1}]  {2} -> ' -f $Path,$Identity,$RuleToRemove."$($ProviderName)Rights")
@@ -517,7 +517,7 @@ Function Revoke-Permission {
     .LINK
         Test-Permission
     #>
-    
+
     [CmdletBinding(SupportsShouldProcess=$true)]
     Param(
         [Parameter(Mandatory=$true)]
@@ -526,7 +526,7 @@ Function Revoke-Permission {
         [string]$Identity
    )
 
-   
+
     $Path = Resolve-Path -Path $Path
     If (-not $Path) {
         return
@@ -541,7 +541,7 @@ Function Revoke-Permission {
     If ($RulesToRemove) {
         $Identity = Resolve-IdentityName -Name $Identity
         $RulesToRemove | ForEach-Object { Write-Verbose ('[{0}] [{1}]  {2} -> ' -f $Path,$Identity,$_."$($ProviderName)Rights") }
-        
+
         Get-Item $Path -Force |
         ForEach-Object {
             If ($_.PSProvider.Name -eq 'Certificate') {
@@ -628,11 +628,11 @@ Function Test-Permission {
     .LINK
         http://msdn.microsoft.com/en-us/library/system.security.accesscontrol.cryptokeyrights.aspx
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
-        [string]$Path,        
+        [string]$Path,
         [Parameter(Mandatory=$true)]
         [string]$Identity,
         [Parameter(Mandatory=$true)]
@@ -694,10 +694,10 @@ Function Test-Permission {
         }
     }
 
-    $ACL = Get-Permission -Path $Path -Identity $Identity -Inherited:$Inherited | 
+    $ACL = Get-Permission -Path $Path -Identity $Identity -Inherited:$Inherited |
            Where-Object { $_.AccessControlType -eq 'Allow' } |
            Where-Object { $_.IsInherited -eq $Inherited } |
-           Where-Object { 
+           Where-Object {
                If ($Exact) {
                    return ($_.$RightsPropertyName -eq $Rights)
                }
@@ -746,8 +746,8 @@ Function Set-CryptoKeySecurity {
         $CspParams.Flags = $CspParams.Flags -bor [Security.Cryptography.CspProviderFlags]::UseMachineKeyStore
     }
     $CspParams.CryptoKeySecurity = $CryptoKeySecurity
-                        
-    Try {                    
+
+    Try {
         # Persist the rule change
         If ($PSCmdlet.ShouldProcess(('{0} ({1})' -f $Certificate.Subject,$Certificate.Thumbprint), $Action)) {
             $null = New-Object 'Security.Cryptography.RSACryptoServiceProvider' ($CspParams)
@@ -787,7 +787,7 @@ Function ConvertTo-ContainerInheritanceFlags {
     .LINK
         Test-Permission
     #>
-    
+
     [CmdletBinding()]
     [OutputType([PSSM.Security.ContainerInheritanceFlags])]
     Param(
@@ -796,7 +796,7 @@ Function ConvertTo-ContainerInheritanceFlags {
         [Parameter(Mandatory=$true,Position=1)]
         [Security.AccessControl.PropagationFlags]$PropagationFlags
    )
-    
+
     $PropFlagsNone = $PropagationFlags -eq [Security.AccessControl.PropagationFlags]::None
     $PropFlagsInheritOnly = $PropagationFlags -eq [Security.AccessControl.PropagationFlags]::InheritOnly
     $PropFlagsInheritOnlyNoPropagate = $PropagationFlags -eq ([Security.AccessControl.PropagationFlags]::InheritOnly -bor [Security.AccessControl.PropagationFlags]::NoPropagateInherit)
@@ -864,7 +864,7 @@ Function ConvertTo-ProviderAccessControlRights {
         ConvertTo-ProviderAccessControlRights -ProviderName 'FileSystem' -InputObject 'Read','Write'
         Demonstrates how to convert `Read` and `Write` into a 'System.Security.AccessControl.FileSystemRights' value
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -880,7 +880,7 @@ Function ConvertTo-ProviderAccessControlRights {
         $FoundInvalidRight = $false
     }
     Process {
-        $InputObject | ForEach-Object { 
+        $InputObject | ForEach-Object {
             $Right = ($_ -as $RightTypeName)
             If (-not $Right) {
                 $AllowedValues = [Enum]::GetNames($RightTypeName)
@@ -921,14 +921,14 @@ Function ConvertTo-InheritanceFlag {
     .LINK
         Grant-Permission
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
         [Alias('ContainerInheritanceFlags')]
         [PSSM.Security.ContainerInheritanceFlags]$ContainerInheritanceFlag
     )
- 
+
     $Flags = [Security.AccessControl.InheritanceFlags]
     $Map = @{
         'Container' =                                  $Flags::None;
@@ -949,8 +949,8 @@ Function ConvertTo-InheritanceFlag {
     If ($Map.ContainsKey($key)) {
         return $Map[$Key]
     }
-    
-    Write-Error ('Unknown PSSM.Security.ContainerInheritanceFlags enumeration value {0}.' -f $ContainerInheritanceFlag) 
+
+    Write-Error ('Unknown PSSM.Security.ContainerInheritanceFlags enumeration value {0}.' -f $ContainerInheritanceFlag)
 }
 
 
@@ -973,7 +973,7 @@ Function ConvertTo-PropagationFlag {
     .LINK
         Grant-Permission
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1001,8 +1001,8 @@ Function ConvertTo-PropagationFlag {
     If ($Map.ContainsKey($Key)) {
         return $Map[$Key]
     }
-    
-    Write-Error ('Unknown PSSM.Security.ContainerInheritanceFlags enumeration value {0}.' -f $ContainerInheritanceFlag) 
+
+    Write-Error ('Unknown PSSM.Security.ContainerInheritanceFlags enumeration value {0}.' -f $ContainerInheritanceFlag)
 }
 
 
@@ -1026,7 +1026,7 @@ Function ConvertTo-SecurityIdentifier {
         The SID you passed in will be returned to you unchanged
     .EXAMPLE
         ConvertTo-SecurityIdentifier -SID $SIDBytes
-        Demonstrates that you can use a byte array that represents a SID as the value of the 'SID' parameter.   
+        Demonstrates that you can use a byte array that represents a SID as the value of the 'SID' parameter.
     .LINK
         Resolve-Identity
     .LINK
@@ -1038,7 +1038,7 @@ Function ConvertTo-SecurityIdentifier {
         [Parameter(Mandatory=$true)]
         $SID
     )
-    
+
     Try {
         If ($SID -is [string]) {
             New-Object 'Security.Principal.SecurityIdentifier' $SID
@@ -1076,7 +1076,7 @@ Function Get-PathProvider {
     .OUTPUTS
         System.Management.Automation.ProviderInfo
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
@@ -1137,14 +1137,14 @@ Function Test-Identity {
     .LINK
         Resolve-IdentityName
     #>
-    
+
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
         [string]$Name,
         [switch]$PassThru
     )
-    
+
     $Identity = [PSSM.Identity]::FindByName($Name)
     If (-not $Identity) {
         return $false
@@ -1169,12 +1169,12 @@ Function Resolve-Identity {
             * Name - the user's username or the group's name
             * Type - the Sid type
             * Sid - the account's security identifier as a `System.Security.Principal.SecurityIdentifier` object
-    
+
         The common name for an account is not always the canonical name used by the operating system
         For example, the local Administrators group is actually called 'BUILTIN\Administrators'. This Function uses the 'LookupAccountName' and 'LookupAccountSid' Windows Functions to resolve an account name or security identifier into its domain, name, full name, SID, and SID type
-        
+
         You may pass a 'System.Security.Principal.SecurityIdentifer', a SID in SDDL form (as a string), or a SID in binary form (a byte array) as the value to the 'SID' parameter. You'll get an error and nothing returned if the SDDL or byte array SID are invalid
-    
+
         If the name or security identifier doesn't represent an actual user or group, an error is written and nothing is returned
     .PARAMETER Name
         The name of the identity to return
@@ -1210,7 +1210,7 @@ Function Resolve-Identity {
     .LINK
         http://msdn.microsoft.com/en-us/library/windows/desktop/aa379601.aspx
     #>
-    
+
     [CmdletBinding(DefaultParameterSetName='ByName')]
     [OutputType([PSSM.Identity])]
     Param(
@@ -1232,13 +1232,13 @@ Function Resolve-Identity {
         }
         return $ID
     }
-    
+
     If (-not (Test-Identity -Name $Name)) {
         Write-Error ('Identity ''{0}'' not found.' -f $Name) -ErrorAction $ErrorActionPreference
         return
     }
-    
-    return [PSSM.Identity]::FindByName($Name) 
+
+    return [PSSM.Identity]::FindByName($Name)
 }
 
 
@@ -1250,13 +1250,13 @@ Function Resolve-IdentityName {
         'Resolve-IdentityName' resolves a user/group name into its full, canonical name, used by the operating system
         For example, the local Administrators group is actually called 'BUILTIN\Administrators'
         With a canonical username, you can unambiguously compare principals on objects that contain user/group information
-        
+
         If unable to resolve a name into an identity, 'Resolve-IdentityName' returns nothing
-        
+
         You can also resolve a SID into its identity name
         The `SID` parameter accepts a SID in SDDL form as a 'string', a 'System.Security.Principal.SecurityIdentifier' object, or a SID in binary form as an array of bytes
         If the SID no longer maps to an active account, you'll get the original SID in SDDL form (as a string) returned to you
-        
+
         If you want to get full identity information (domain, type, sid, etc.), use 'Resolve-Identity'
     .PARAMETER Name
         The name of the identity to return
@@ -1278,7 +1278,7 @@ Function Resolve-IdentityName {
     .LINK
         http://msdn.microsoft.com/en-us/library/windows/desktop/aa379601.aspx
     #>
-    
+
     [CmdletBinding(DefaultParameterSetName='ByName')]
     [OutputType([string])]
     Param(
