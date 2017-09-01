@@ -1055,12 +1055,12 @@ Function ConvertTo-SecurityIdentifier {
             $SID
         }
         Else {
-            Write-Error ('Invalid SID. The 'SID' parameter accepts a 'System.Security.Principal.SecurityIdentifier' object, a SID in SDDL form as a 'string', or a SID in binary form as byte array. You passed a ''{0}''.' -f $SID.GetType())
+            Write-Error ('Invalid SID. The `SID` parameter accepts a `System.Security.Principal.SecurityIdentifier` object, a SID in SDDL form as a `string`, or a SID in binary form as byte array. You passed a ''{0}''.' -f $SID.GetType())
             return
         }
     }
     Catch {
-        Write-Error ('Exception converting SID parameter to a 'SecurityIdentifier' object. This usually means you passed an invalid SID in SDDL form (as a string) or an invalid SID in binary form (as a byte array): {0}' -f $_.Exception.Message)
+        Write-Error ('Exception converting SID parameter to a `SecurityIdentifier` object. This usually means you passed an invalid SID in SDDL form (as a string) or an invalid SID in binary form (as a byte array): {0}' -f $_.Exception.Message)
         return
     }
 }
