@@ -29,7 +29,7 @@ Function Get-Permission {
         Returns 'System.Security.AccessControl.FileSystemAccessRule' objects for all the 'Administrators' rules on 'C:\Windows'
     .EXAMPLE
         Get-Permission -Path 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678'
-        Returns 'System.Security.AccessControl.CryptoKeyAccesRule' objects for certificate's 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678' private key/key container. If it doesn't have a private key, '$null' is returned
+        Returns 'System.Security.AccessControl.CryptoKeyAccessRule' objects for certificate's 'Cert:\LocalMachine\1234567890ABCDEF1234567890ABCDEF12345678' private key/key container. If it doesn't have a private key, '$null' is returned
     .OUTPUTS
         System.Security.AccessControl.AccessRule
     .LINK
