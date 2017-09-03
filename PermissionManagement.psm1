@@ -1,5 +1,4 @@
-﻿#Requires -Version 4.0
-#Requires -RunAsAdministrator
+#Requires -Version 4.0
 
 
 Function Get-Permission {
