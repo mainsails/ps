@@ -3614,7 +3614,7 @@ Function Unblock-AppExecution {
         [psobject[]]$unblockProcesses = $null
         [psobject[]]$unblockProcesses += (Get-ChildItem -LiteralPath $regKeyAppExecution -Recurse -ErrorAction 'SilentlyContinue' | ForEach-Object { Get-ItemProperty -LiteralPath $_.PSPath -ErrorAction 'SilentlyContinue' })
         ForEach ($unblockProcess in ($unblockProcesses | Where-Object { $_.Debugger -like '*PSSM_BlockAppExecution*' })) {
-            Write-Verbose -Message "Remove the Image File Execution Options registry key to unblock execution of [$($unblockProcess.PSChildName)]."
+            Write-Verbose -Message "Remove the Image File Execution Options registry key to unblock execution of [$($unblockProcess.PSChildName)]"
             $unblockProcess | Remove-ItemProperty -Name 'Debugger' -ErrorAction 'SilentlyContinue'
         }
 
