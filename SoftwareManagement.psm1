@@ -2508,7 +2508,7 @@ Function ConvertTo-NTAccountOrSID {
         ConvertTo-NTAccountOrSID -AccountName '<domain>\UserName'
         Converts a Windows NT Account name to the corresponding SID
     .EXAMPLE
-        ConvertTo-NTAccountOrSID -SID 'S-1-5-21-1220945662-2111687655-725345543-14012660'
+        ConvertTo-NTAccountOrSID -SID 'S-1-5-32-544'
         Converts a Windows NT Account SID to the corresponding NT Account Name
     .EXAMPLE
         ConvertTo-NTAccountOrSID -WellKnownSIDName 'NetworkServiceSid'
