@@ -5,16 +5,16 @@ $ReferencedAssemblies = ('System.DirectoryServices, Version=2.0.0.0, Culture=neu
 Add-Type -Path "$PSScriptRoot\TypeData\PSSM-QueryUser.cs" -ReferencedAssemblies $ReferencedAssemblies
 
 # Get public and private function definition files
-$Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
-$Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )
+$Public  = @(Get-ChildItem -Path "$PSScriptRoot\Public"  -Filter '*.ps1')
+$Private = @(Get-ChildItem -Path "$PSScriptRoot\Private" -Filter '*.ps1')
 
 # Dot source the files
 ForEach ($Import in @($Public + $Private)) {
     Try {
-        . $Import.fullname
+        . $Import.FullName
     }
     Catch {
-        Write-Error -Message "Failed to import function $($Import.fullname): $_"
+        Write-Error -Message "Failed to import function $($Import): $_"
     }
 }
 
