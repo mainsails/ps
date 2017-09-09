@@ -25,10 +25,10 @@ Author = 'Sam Shaw'
 Copyright = '(c) 2017 Sam Shaw. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'Module to assist with common application deployment tasks'
 
 # Minimum version of the Windows PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '4.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -64,16 +64,44 @@ Copyright = '(c) 2017 Sam Shaw. All rights reserved.'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = '*'
+FunctionsToExport = @('Block-AppExecution',
+                      'ConvertTo-NTAccountOrSID',
+                      'Copy-File',
+                      'Get-FileVersion',
+                      'Get-FreeDiskSpace',
+                      'Get-InstalledApplication',
+                      'Get-LoggedOnUser',
+                      'Get-MSIErrorCodeMessage',
+                      'Get-MsiTableProperty',
+                      'Get-PendingReboot',
+                      'Get-PowerSupply',
+                      'Get-ScheduledTasks',
+                      'Invoke-HKCURegistrySettingsForAllUsers',
+                      'Invoke-RegisterOrUnregisterDLL',
+                      'New-Folder',
+                      'New-Shortcut',
+                      'Remove-File',
+                      'Remove-Folder',
+                      'Remove-MSI',
+                      'Remove-RegistryKey',
+                      'Set-ActiveSetup',
+                      'Set-RegistryKey',
+                      'Start-EXE',
+                      'Start-EXEAsUser',
+                      'Start-MSI',
+                      'Start-MSP',
+                      'Unblock-AppExecution',
+                      'Update-Desktop',
+                      'Update-GroupPolicy')
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = '*'
+#CmdletsToExport = '*'
 
 # Variables to export from this module
-VariablesToExport = '*'
+#VariablesToExport = '*'
 
 # Aliases to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no aliases to export.
-AliasesToExport = '*'
+#AliasesToExport = '*'
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
@@ -90,7 +118,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('Software','Applications','Deployment','Configuration')
 
         # A URL to the license for this module.
         # LicenseUri = ''
@@ -99,7 +127,7 @@ PrivateData = @{
         # ProjectUri = ''
 
         # A URL to an icon representing this module.
-        # IconUri = ''
+        IconUri = 'https://github.com/mainsails/ps/SoftwareManagement'
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
