@@ -124,10 +124,10 @@ PrivateData = @{
         # LicenseUri = ''
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/mainsails/ps/SoftwareManagement'
 
         # A URL to an icon representing this module.
-        IconUri = 'https://github.com/mainsails/ps/SoftwareManagement'
+        # IconUri = ''
 
         # ReleaseNotes of this module
         # ReleaseNotes = ''
