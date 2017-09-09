@@ -3,7 +3,7 @@ Function ConvertTo-InheritanceFlag {
     .SYNOPSIS
         Converts a 'PSPM.Security.ContainerInheritanceFlags' value to a 'System.Security.AccessControl.InheritanceFlags' value
     .DESCRIPTION
-        The 'PSPM.Security.ContainerInheritanceFlags' enumeration encapsulates oth 'System.Security.AccessControl.InheritanceFlags' and 'System.Security.AccessControl.PropagationFlags'
+        The 'PSPM.Security.ContainerInheritanceFlags' enumeration encapsulates both 'System.Security.AccessControl.InheritanceFlags' and 'System.Security.AccessControl.PropagationFlags'
         Make sure you also call 'ConvertTo-PropagationFlag' to get the propagation value
     .PARAMETER ContainerInheritanceFlag
         The value to convert to an 'InheritanceFlags' value
