@@ -20,4 +20,42 @@ LONG DESCRIPTION
     - Test power connectivity
 
 EXAMPLES
-    ToDo
+    Start-MSI -Action Install   -Path "C:\Path\To\File\7z1604-x64.msi" -Verbose
+    Start-MSI -Action Uninstall -Path "C:\Path\To\File\7z1604-x64.msi" -Verbose
+    Start-MSI -Action Uninstall -Path "{23170F69-40C1-2702-1604-000001000000}" -Verbose
+    Start-MSP -Path 'C:\Path\To\File\Adobe_Acrobat_DC_x64_EN.msp' -Verbose
+    Start-EXE -Path "C:\Path\To\File\7z1604-x64.exe" -Parameters "/S" -Verbose
+    Get-MsiTableProperty -Path "C:\Path\To\File\7z1604-x64.msi"
+    Get-InstalledApplication -Name "7-Zip"
+    Get-InstalledApplication -ProductCode "{23170F69-40C1-2702-1604-000001000000}"
+    Get-FreeDiskSpace -Drive 'C:'
+    Get-MSIErrorCodeMessage -MSIErrorCode 3010
+    Get-FileVersion -File "C:\Path\To\File\7z1604-x64.exe"
+    New-Shortcut -Path "C:\Path\To\File\TestProgram.lnk" -TargetPath "$env:windir\System32\notepad.exe" -IconLocation "$env:windir\system32\notepad.exe" -Description 'Notepad Shortcut'
+    Get-LoggedOnUser
+    Get-UserProfiles
+    Update-Desktop
+    Update-GroupPolicy
+    Get-PowerSupply
+    (Get-PowerSupply).IsLaptop
+    Remove-MSI -Name 'Java' -Verbose
+    Remove-MSI -Name 'Java' -Verbose -ExcludeFromUninstall (,('DisplayName', 'Java(TM) 6 Update 31', 'RegEx'))
+    Start-EXEAsUser -UserName 'Domain\UserName' -Path "C:\Path\To\File\7zFM.exe" -verbose -wait
+    Start-EXEAsUser -UserName 'Domain\UserName' -Path "powershell.exe" -Parameters '-Command C:\Path\To\File\Script.ps1'
+    Set-ActiveSetup -StubEXEPath "$env:WinDir\regedit.exe" -Arguments "/S `"C:\Path\To\File\HKCURegistryChange.reg`"" -Description 'HKCU Registry Change' -Key 'HKCU_Registry_Change' -Verbose
+    Get-PendingReboot
+    (Get-PendingReboot).LastBootUpTime
+    Block-AppExecution -ProcessName 'excel','winword' -Verbose
+    Unblock-AppExecution -Verbose
+    Convert-RegistryPath -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test'
+    Set-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Verbose
+    Set-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Name 'TestName' -Value 'TestValue' -Type String -Verbose
+    Remove-RegistryKey -Key 'HKEY_LOCAL_MACHINE\SOFTWARE\Test' -Recurse -Verbose
+    Remove-RegistryKey -Key 'HKLM:SOFTWARE\Test' -Name 'TestName' -Verbose
+    New-Folder -Path 'C:\Path\To\Folder' -Verbose
+    Remove-Folder -Path 'C:\Path\To\Folder' -Verbose
+    Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\File\File01-Copy.txt' -Verbose
+    Copy-File -Path 'C:\Path\To\File\File01.txt' -Destination 'C:\Path\To\Another\File\Test2' -Verbose
+    Copy-File -Path 'C:\Path\To\File\*' -Destination 'C:\Path\To\Another\File' -Recurse -Verbose
+    Remove-File -Path 'C:\Path\To\File\File01.txt' -Verbose
+    Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
