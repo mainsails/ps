@@ -1,7 +1,7 @@
 # Permission Management PowerShell Module
 
 ## Description
-The Permission Management module was designed to assist with common file system, registry, and certificate permission tasks
+The Permission Management module was designed to assist with common file system, registry, and certificate permission tasks.
 It can grant or revoke permissions on a file, a directory, a registry key, or a certificate's private key
 
 
@@ -9,7 +9,6 @@ It can grant or revoke permissions on a file, a directory, a registry key, or a 
 * All Windows Client Operating Systems are supported  
    Windows 7 SP1 and Windows Server 2008R2 through to Windows 10 Build 1703 and Windows Server 2016
 * PowerShell Version 4
-* Administrative Rights (where applicable)
 
 
 ## Usage
