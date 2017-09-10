@@ -67,4 +67,4 @@ Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
 ```
 
 ## Examples
-![StartRemove-MSI](/Media/StartRemove-MSI.gif)
+![StartRemove-MSI](Media/StartRemove-MSI.gif)
