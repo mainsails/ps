@@ -1,6 +1,3 @@
-* Contents
-{:toc}
-
 # Software Management PowerShell Module
 ## Description
     The Software Management module enables a set of functions to perform common application deployment tasks including :
@@ -69,4 +66,4 @@ Remove-File -LiteralPath 'C:\Path\To\File' -Recurse -Verbose
 ```
 
 ## Examples
-![StartRemove-MSI]({{ site.url }}/Media/StartRemove-MSI.gif)
+![StartRemove-MSI](/Media/StartRemove-MSI.gif)
