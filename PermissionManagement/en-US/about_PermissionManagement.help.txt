@@ -66,4 +66,4 @@ EXAMPLES
           Non-inherited rules are preserved
 
         Disable-AclInheritance -Path 'HKLM:\SOFTWARE\Test' -Preserve
-        - Stops 'HKLM:\SOFTWARE\Test' from inheriting acces rules from its parent, but preserves the existing inheritied access rules
+        - Stops 'HKLM:\SOFTWARE\Test' from inheriting access rules from its parent, but preserves the existing inheritied access rules
