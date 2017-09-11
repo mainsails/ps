@@ -1,7 +1,7 @@
 # Permission Management PowerShell Module
 
 ## Description
-The Permission Management module was designed to assist with common file system, registry, and certificate permission tasks.
+The PermissionManagement module is designed to assist with common file system, registry, and certificate permission tasks.
 It can grant or revoke permissions on a file, a directory, a registry key, or a certificate's private key
 
 
@@ -62,18 +62,21 @@ Test-Permission -Identity 'DOMAIN\UserName' -Permission 'Write' -ApplyTo 'Contai
 ```powershell
 Enable-AclInheritance -Path 'C:\Test'
 # Re-enables ACL inheritance on 'C:\Test'
-# ACLs on 'C:\' will be inherited to and affect 'C:\Test'. Any explicit ACLs on 'C:\Test' are removed
+# ACLs on 'C:\' will be inherited to and affect 'C:\Test'
+# Any explicit ACLs on 'C:\Test' are removed
 
 Enable-AclInheritance -Path 'HKLM:\SOFTWARE\Test' -Preserve
-# Re-enables ACL inheritance on 'HKLM:\SOFTWARE\Test'. ACLs on 'HKLM:\SOFTWARE' will be inherited to and affect 'HKLM:\SOFTWARE\Test'. Any explicit ACLs on ':\SOFTWARE\Test' are kept
+# Re-enables ACL inheritance on 'HKLM:\SOFTWARE\Test'
+# ACLs on 'HKLM:\SOFTWARE' will be inherited to and affect 'HKLM:\SOFTWARE\Test'
+# Any explicit ACLs on 'HKLM:\SOFTWARE\Test' are kept
 ```
 
 ### Disable ACL Inheritance
 ```powershell
 Disable-AclInheritance -Path 'C:\Test'
-# Removes all-  inherited access rules from the 'C:\Test' directory
+# Removes all inherited access rules from the 'C:\Test' directory
 # Non-inherited rules are preserved
 
 Disable-AclInheritance -Path 'HKLM:\SOFTWARE\Test' -Preserve
-# Stops 'HKLM:\SOFTWARE\Test' from inheriting acces rules from its parent, but preserves the existing inheritied access rules
+# Stops 'HKLM:\SOFTWARE\Test' from inheriting access rules from its parent, but preserves the existing inheritied access rules
 ```
