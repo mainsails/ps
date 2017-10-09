@@ -8,12 +8,12 @@ Function Invoke-SQLQuery {
         A server name for the instance of the Database Engine
     .PARAMETER Database
         A character string specifying the name of a database
+    .PARAMETER UseWindowsAuthentication
+        Specifies a Windows Authentication connection using the Windows account running the PowerShell session
     .PARAMETER Username
         Specifies the login ID for making a SQL Server Authentication connection to an instance of the Database Engine. The password must be specified using -Password. If -Username and -Password are not specified, Invoke-SQLQuery attempts a Windows Authentication connection using the Windows account running the PowerShell session
     .PARAMETER Password
         Specifies the password for the SQL Server Authentication login ID that was specified in -Username
-    .PARAMETER UseWindowsAuthentication
-        Specifies a Windows Authentication connection using the Windows account running the PowerShell session
     .PARAMETER Query
         Specifies one or more queries to be run
     .PARAMETER CommandTimeout
