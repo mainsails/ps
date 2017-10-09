@@ -29,12 +29,12 @@ Function Invoke-SQLQuery {
         [string]$Server,
         [Parameter(Mandatory=$true)]
         [string]$Database,
+        [Parameter(Mandatory=$false, ParameterSetName = 'Auth_SSPI')]
+        [switch]$UseWindowsAuthentication = $true,
         [Parameter(Mandatory=$true, ParameterSetName = 'Auth_UID')]
         [string]$Username,
         [Parameter(Mandatory=$true, ParameterSetName = 'Auth_UID')]
         [string]$Password,
-        [Parameter(Mandatory=$false, ParameterSetName = 'Auth_SSPI')]
-        [switch]$UseWindowsAuthentication = $true,
         [Parameter(Mandatory=$true)]
         [string]$Query,
         [Parameter(Mandatory=$false)]
