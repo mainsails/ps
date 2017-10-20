@@ -24,7 +24,7 @@ Function Enable-PowershellRemoting {
 
     Begin {
         $ComputerList             = New-Object -TypeName System.Collections.ArrayList
-        $PSExec                   = 'C:\Program Files (x86)\PSTools\PsExec.exe'
+        $PSExec                   = 'C:\Program Files\Tools\PsExec.exe'
         $EnablePSRemotingSwitch   = '-s -accepteula powershell Enable-PSRemoting -Force'
         $RegisterPSRemotingSwitch = '-s -accepteula powershell Register-PSSessionConfiguration -Name Microsoft.PowerShell'
     }
