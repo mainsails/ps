@@ -452,7 +452,7 @@ Function Start-MSI {
         [string]$argsMSI = "$Option $msiFile $msiDefaultParams $msiLoggingOptions $msiLogFile"
         If ($Transform)        { $argsMSI = "$argsMSI TRANSFORMS=$mstFile TRANSFORMSSECURE=1" }
         If ($Patch)            { $argsMSI = "$argsMSI PATCH=$mspFile" }
-        If ($CustomParameters) { $argsMSI = $CustomParameters }
+        If ($CustomParameters) { $argsMSI = "$Option $msiFile $CustomParameters" }
 
         # Build the hashtable with the options that will be passed to Start-EXE using splatting
         [hashtable]$ExecuteProcessSplat = @{
