@@ -38,7 +38,8 @@ Function Test-ConnectionAsynchronous {
         $Task = ForEach ($Computer in $ComputerList) {
             [PSCustomObject] @{
                 ComputerName = $Computer
-                Task = (New-Object -TypeName System.Net.NetworkInformation.Ping).SendPingAsync($Computer)
+                Task = Try   { (New-Object -TypeName System.Net.NetworkInformation.Ping).SendPingAsync($Computer) }
+                       Catch { Continue }
             }
         }
         Try {
