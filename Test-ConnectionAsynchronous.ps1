@@ -1,18 +1,18 @@
 Function Test-ConnectionAsynchronous {
     <#
     .SYNOPSIS
-        Performs an asynchronous ping test
+        Asynchronously attempts to sends ICMP echo request packets ("pings") to one or more computers
     .DESCRIPTION
-        Performs an asynchronous ping test against multiple machines
+        Asynchronously attempts to send and receive the corresponding Internet Control Message Protocol (ICMP) echo message to a specified Computer or IP Address
     .PARAMETER ComputerName
-        List of computers for connection test
+        Specifies the computers to ping. Accepts computer names or IP addresses in IPv4 or IPv6 format. Wildcard characters are not permitted
     .EXAMPLE
         Test-ConnectionAsynchronous -ComputerName "Computer1", "Computer2", "Computer3"
 
-        ComputerName                Result
-        ------------                ------
-        Computer1                   Success
-        Computer2                   TimedOut
+        ComputerName  IPAddress     Result
+        ------------  ---------     ------
+        Computer1     192.168.0.10  Success
+        Computer2     192.168.1.20  TimedOut
         Computer3                   No such host is known
     .EXAMPLE
         Get-Clipboard | Test-ConnectionAsynchronous
