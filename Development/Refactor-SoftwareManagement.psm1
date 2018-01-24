@@ -289,7 +289,7 @@ Function Start-MSI {
         The path to the MSI/MSP file or the product code of the installed MSI
     .PARAMETER Transform
         The name of the transform file(s) to be applied to the MSI. The transform file is expected to be in the same directory as the MSI file
-    .PARAMETER $CustomParameters
+    .PARAMETER CustomParameters
         Adds to the default parameters. Install default is: "REBOOT=ReallySuppress /QN". Uninstall default is: "REBOOT=ReallySuppress /QN"
     .PARAMETER PassThru
         Returns ExitCode, STDOut, and STDErr output from the process
