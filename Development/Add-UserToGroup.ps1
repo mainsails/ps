@@ -6,12 +6,12 @@ Function Add-UserToGroup {
         Adds one or more users to an Active Directory Group
     .Parameter Username
         List of usernames to add to the Group
-    .Parameter Username
-        List of usernames to add to the Group
+    .Parameter Group
+        Name of Group
     .Example
-        Add-UserToGroup -UserName "UserName1", "UserName2", "UserName3"
+        Add-UserToGroup -UserName "UserName1", "UserName2", "UserName3" -Group "ADGroup"
     .Example
-        Get-Clipboard | Add-UserToGroup
+        Get-Clipboard | Add-UserToGroup -Group "ADGroup"
     #>
     #Requires -Module ActiveDirectory
 
