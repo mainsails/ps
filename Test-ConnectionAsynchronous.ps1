@@ -39,7 +39,10 @@ Function Test-ConnectionAsynchronous {
             [PSCustomObject] @{
                 ComputerName = $Computer
                 Task = Try   { (New-Object -TypeName System.Net.NetworkInformation.Ping).SendPingAsync($Computer) }
-                       Catch { Continue }
+                       Catch {
+                          Write-Warning -Message "Invalid Hostname/IP : [$Computer]"
+                          Continue
+                       }
             }
         }
         Try {
