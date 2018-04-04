@@ -40,12 +40,11 @@ Function Get-RebootHistory {
 
     [CmdletBinding()]
     Param (
-        [Parameter(Mandatory=$false,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [Alias('CN','Computer')]
         [Array]$ComputerName = $env:COMPUTERNAME,
-        [Parameter(Mandatory = $false, ValueFromPipeline = $false)]
         [ValidateNotNull()]
-        [System.Management.Automation.PSCredential]$Credential = [System.Management.Automation.PSCredential]::Empty
+        [System.Management.Automation.Credential()][pscredential]$Credential = [pscredential]::Empty
     )
 
     Begin {
@@ -91,8 +90,8 @@ Function Get-RebootHistory {
             $Params.ComputerName = $Computer
 
             # You can't use credentials when connecting to the local machine so temporarily empty out the credential object.
-            If ($Computer -eq $Env:ComputerName) { 
-                $Params.Credential = [System.Management.Automation.PSCredential]::Empty
+            If ($Computer -eq $env:COMPUTERNAME) { 
+                $Params.Credential = [pscredential]::Empty
             }
 
             If ($ComputerName.Count -gt 1) { 
