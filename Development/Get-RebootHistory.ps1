@@ -48,10 +48,7 @@ Function Get-RebootHistory {
     )
 
     Begin {
-        $i = 0
-        $RecentShutdowns  = 0
-        $RecentUnexpected = 0
-
+        $RecentShutdowns     = 0
         $BootHistory         = @()
         $ShutdownDetail      = @()
         $UnexpectedShutdowns = @() 
@@ -94,22 +91,11 @@ Function Get-RebootHistory {
                 $Params.Credential = [pscredential]::Empty
             }
 
-            If ($ComputerName.Count -gt 1) { 
-                Write-Progress -Id 1 -Activity 'Retrieving boot history.' -Status ('Percent Complete: {0:N0}' -f $($i / $($ComputerName.Count)*100)) -PercentComplete (($i / $ComputerName.Count)*100)
- $i++
-            }
-            Else {
-                Write-Progress -Id 1 -Activity 'Retrieving boot history.' -Status 'Retrieving boot history.'
-            }
-
             Try { 
                 $d = 0
                 $Events = Get-WmiObject @Params
 
                 ForEach ($Event In $Events) {
-                    Write-Progress -Id 2 -ParentId 1 -Activity 'Processing reboot history.' -PercentComplete (($d / $Events.Count)*100) -Status 'Processing reboot history.'
- $d++
-
                     # Record the relevant details for the shutdown event.
                     Switch ($Event.EventCode) { 
                         6009 { $BootHistory         += (Get-Date -Date (([WMI]'').ConvertToDateTime($Event.TimeGenerated)) -Format g) }
