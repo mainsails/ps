@@ -511,8 +511,6 @@ Function Start-MSP {
         If a valid installed product is found, the Start-MSI function is triggered to patch the installation
     .PARAMETER Path
         The path to the MSP file
-    .PARAMETER PassThru
-        Returns ExitCode, STDOut, and STDErr output from the process
     .PARAMETER ContinueOnError
         Continue if an exit code is returned by msiexec that is not recognized. Default is: $true
     .EXAMPLE
@@ -571,7 +569,7 @@ Function Start-MSP {
 
         # Install MSP if required
         If ($IsMSPNeeded) {
-            Start-MSI -Action Patch -Path $Path -PassThru $PassThru -ContinueOnError $ContinueOnError
+            Start-MSI -Action Patch -Path $Path -ContinueOnError $ContinueOnError
         }
         Else {
             If ($ContinueOnError) {
