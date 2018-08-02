@@ -8,5 +8,5 @@ If (!(Test-Path -Path $RegistryPath)) {
     New-Item -Path $RegistryPath -Force
 }
 
-If ($Time) { New-ItemProperty -Path $RegistryPath -Name 'DeployedOn' -Value $Time -PropertyType 'String' -Force }
+If ($Time) { New-ItemProperty -Path $RegistryPath -Name 'DeployDate' -Value $Time -PropertyType 'String' -Force }
 If ($Site) { New-ItemProperty -Path $RegistryPath -Name 'DeploySite' -Value $Site -PropertyType 'String' -Force }
