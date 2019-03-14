@@ -1,7 +1,7 @@
 Function Get-FileLockProcess {
     <#
     .SYNOPSIS
-        Check which process is locking a file.
+        Check which local process is locking a file.
     .DESCRIPTION
         Get-FileLockProcess takes a path to a file and returns a System.Collections.Generic.List of System.Diagnostic.Process objects.
     .PARAMETER Path
@@ -9,11 +9,17 @@ Function Get-FileLockProcess {
     .OUTPUTS
         System.Diagnostics.Process
     .EXAMPLE
-        Get-FileLockProcess -FilePath "$HOME\Documents\Spreadsheet.xlsx"
+        Get-FileLockProcess -Path "$HOME\Documents\Spreadsheet.csv"
 
         Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
         -------  ------    -----      -----     ------     --  -- -----------
            1235      74    94640     131284       5.13  30192   1 EXCEL
+
+        This command queries the specified file and displays the locking process object.
+    .EXAMPLE
+        Get-FileLockProcess -Path "C:\Work\Document.odt" | Stop-Process -Force
+
+        This command queries the specified file and forcefully terminates the locking process(es).
     #>
 
     [CmdletBinding()]
