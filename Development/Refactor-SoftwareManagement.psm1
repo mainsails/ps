@@ -3145,7 +3145,7 @@ Function Get-PendingReboot {
 
         ## Get the date/time that the system last booted up
         Try {
-            [nullable[datetime]]$LastBootUpTime = (Get-Date -ErrorAction 'Stop') - ([timespan]::FromMilliseconds([math]::Abs([Environment]::TickCount)))
+            [nullable[datetime]]$LastBootUpTime = Get-CimInstance -ClassName Win32_OperatingSystem | Select-Object -ExpandProperty LastBootUpTime
         }
         Catch {
             [nullable[datetime]]$LastBootUpTime = $null
