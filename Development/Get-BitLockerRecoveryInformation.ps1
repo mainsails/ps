@@ -226,6 +226,5 @@ Function Get-BitLockerRecoveryInformation {
         ElseIf ($PSCmdlet.ParameterSetName -eq 'PasswordID') {
             SearchBitLockerRecoveryByPasswordID $PasswordID
         }
-
     }
 }
