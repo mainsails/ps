@@ -50,7 +50,7 @@ Function Test-ConnectionAsynchronous {
         }
         Catch {}
 
-        $Task | ForEach {
+        $Task | ForEach-Object -Process {
             If ($_.Task.IsFaulted) {
                 $Result    = $_.Task.Exception.InnerException.InnerException.Message
                 $IPAddress = $null
