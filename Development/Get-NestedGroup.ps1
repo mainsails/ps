@@ -38,7 +38,6 @@ Function Get-NestedGroup {
         There are no nested groups inside SiteA-SupportDesk
 
         Checks the five groups saved in the variable $Groups for nested groups. In this example, none of five groups have any nested groups.
-
     #>
 
     [CmdletBinding()]
