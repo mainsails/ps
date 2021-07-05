@@ -1,0 +1,29 @@
+$DownloadURL = 'https://install.speedtest.net/app/cli/ookla-speedtest-1.0.0-win64.zip'
+$DownloadLocation = "$($env:ProgramData)\SpeedtestCLI"
+Try {
+    New-Item $DownloadLocation -ItemType Directory -Force | Out-Null
+    Invoke-WebRequest -Uri $DownloadURL -OutFile "$($DownloadLocation)\speedtest.zip"
+    Expand-Archive "$($DownloadLocation)\speedtest.zip" -DestinationPath $DownloadLocation -Force
+}
+Catch {
+    Write-Error "The download and extraction of SpeedtestCLI failed. Error: $($_.Exception.Message)"
+    exit
+}
+
+$SpeedtestResults = & "$($DownloadLocation)\speedtest.exe" --format=json --accept-license --accept-gdpr
+$SpeedtestResults = $SpeedtestResults | ConvertFrom-Json
+
+Remove-Item $DownloadLocation -Recurse
+
+[PSCustomObject]@{
+    DownloadSpeed = [math]::Round($SpeedtestResults.download.bandwidth / 1000000 * 8, 2)
+    UploadSpeed   = [math]::Round($SpeedtestResults.upload.bandwidth / 1000000 * 8, 2)
+    PacketLoss    = [math]::Round($SpeedtestResults.packetLoss)
+    ISP           = $SpeedtestResults.isp
+    ExternalIP    = $SpeedtestResults.interface.externalIp
+    InternalIP    = $SpeedtestResults.interface.internalIp
+    ServerUsed    = $SpeedtestResults.server.host
+    ResultsURL    = $SpeedtestResults.result.url
+    Jitter        = [math]::Round($SpeedtestResults.ping.jitter)
+    Latency       = [math]::Round($SpeedtestResults.ping.latency)
+}
